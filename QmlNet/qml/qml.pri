@@ -19,6 +19,8 @@ HEADERS += \
     $$PWD/NetQObject.h \
     $$PWD/NetQObjectSignalConnection.h \
     $$PWD/NetQObjectArg.h \
+    $$PWD/NetQModelIndex.h \
+    $$PWD/NetAbstractItemModel.h \
     $$PWD/QLocaleInterop.h
 
 SOURCES += \
@@ -42,4 +44,6 @@ SOURCES += \
     $$PWD/NetQObject.cpp \
     $$PWD/NetQObjectSignalConnection.cpp \
     $$PWD/NetQObjectArg.cpp \
+    $$PWD/NetQModelIndex.cpp \
+    $$PWD/NetAbstractItemModel.cpp \
     $$PWD/QLocaleInterop.cpp
