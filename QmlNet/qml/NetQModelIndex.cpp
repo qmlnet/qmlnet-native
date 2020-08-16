@@ -4,6 +4,7 @@
 
 extern "C" {
 
+Creator(QModelIndex, qmodelindex)
 Deleter(QModelIndex, qmodelindex)
 
 SimpleGetter(QModelIndex, qmodelindex, column, int)
