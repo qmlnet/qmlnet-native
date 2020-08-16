@@ -21,6 +21,7 @@ HEADERS += \
     $$PWD/NetQObjectArg.h \
     $$PWD/NetQModelIndex.h \
     $$PWD/NetAbstractItemModel.h \
+    $$PWD/NetAbstractItemModelRoleNames.h \
     $$PWD/QLocaleInterop.h
 
 SOURCES += \
@@ -46,4 +47,5 @@ SOURCES += \
     $$PWD/NetQObjectArg.cpp \
     $$PWD/NetQModelIndex.cpp \
     $$PWD/NetAbstractItemModel.cpp \
+    $$PWD/NetAbstractItemModelRoleNames.cpp \
     $$PWD/QLocaleInterop.cpp

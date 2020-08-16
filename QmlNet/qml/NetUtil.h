@@ -1,3 +1,5 @@
+#pragma once
+
 #define Container(kind) struct Net ## kind ## Container {\
     QSharedPointer<kind> data;\
 };
@@ -23,3 +25,9 @@
 #define QStringGetter(kind, name, property) Q_DECL_EXPORT const char* net_ ## name ## _ ## property (Net ## kind ## Container* container) {\
     return container->data->property().toUtf8().constData();\
 };
+#define Publicizer(superclass, function) void function() {\
+    superclass::function();\
+}
+
+#define UnwrapVal(in) *(in->data.data())
+#define UnwrapObj(in) in->data.data()
