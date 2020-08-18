@@ -31,9 +31,9 @@ void QmlNetPaintedItem::endRecordPaintActions() {
    update();
 }
 
-void QmlNetPaintedItem::setPen(QString colorString) {
-    checkRecordingAndAdd([colorString](QPainter* p) {
-        QColor color(colorString);
+void QmlNetPaintedItem::setPen(int colorId) {
+    auto color = m_colorMap.at(colorId);
+    checkRecordingAndAdd([color](QPainter* p) {
         QPen pen(color);
         p->setPen(color);
     });
@@ -45,9 +45,9 @@ void QmlNetPaintedItem::resetPen() {
     });
 }
 
-void QmlNetPaintedItem::setBrush(QString colorString) {
-    checkRecordingAndAdd([colorString](QPainter* p) {
-        QColor color(colorString);
+void QmlNetPaintedItem::setBrush(int colorId) {
+    auto color = m_colorMap.at(colorId);
+    checkRecordingAndAdd([color](QPainter* p) {
         QBrush brush(color);
         p->setBrush(brush);
     });
@@ -70,6 +70,46 @@ void QmlNetPaintedItem::setFont(QString fontFamilyName, bool isBold, bool isItal
     });
 }
 
+void QmlNetPaintedItem::setFontFamily(QString fontFamilyName) {
+    checkRecordingAndAdd([fontFamilyName](QPainter* p) {
+       auto font = p->font();
+       font.setFamily(fontFamilyName);
+       p->setFont(font);
+    });
+}
+
+void QmlNetPaintedItem::setFontBold(bool isBold) {
+    checkRecordingAndAdd([isBold](QPainter* p) {
+       auto font = p->font();
+       font.setBold(isBold);
+       p->setFont(font);
+    });
+}
+
+void QmlNetPaintedItem::setFontItalic(bool isItalic) {
+    checkRecordingAndAdd([isItalic](QPainter* p) {
+       auto font = p->font();
+       font.setItalic(isItalic);
+       p->setFont(font);
+    });
+}
+
+void QmlNetPaintedItem::setFontUnderline(bool isUnderline) {
+    checkRecordingAndAdd([isUnderline](QPainter* p) {
+       auto font = p->font();
+       font.setUnderline(isUnderline);
+       p->setFont(font);
+    });
+}
+
+void QmlNetPaintedItem::setFontSize(int pxSize) {
+    checkRecordingAndAdd([pxSize](QPainter* p) {
+       auto font = p->font();
+       font.setPixelSize(pxSize);
+       p->setFont(font);
+    });
+}
+
 void QmlNetPaintedItem::drawText(int x, int y, QString text) {
     checkRecordingAndAdd([x,y,text](QPainter* p) {
         auto vp = p->viewport();
@@ -83,9 +123,9 @@ void QmlNetPaintedItem::drawRect(int x, int y, int width, int height) {
     });
 }
 
-void QmlNetPaintedItem::fillRect(int x, int y, int width, int height, QString colorString) {
-    checkRecordingAndAdd([x,y,width, height, colorString](QPainter* p) {
-        QColor color(colorString);
+void QmlNetPaintedItem::fillRect(int x, int y, int width, int height, int colorId) {
+    auto color = m_colorMap.at(colorId);
+    checkRecordingAndAdd([x,y,width, height, color](QPainter* p) {
         QBrush brush(color);
         p->fillRect(x, y, width, height, brush);
     });
@@ -97,9 +137,26 @@ void QmlNetPaintedItem::fillRect(int x, int y, int width, int height) {
     });
 }
 
+int QmlNetPaintedItem::createColor(QString colorString) {
+    QColor color(colorString);
+    for(int i=0; i<std::numeric_limits<int>::max(); i++) {
+        if(m_colorMap.find(i) == m_colorMap.end()) {
+            m_colorMap[i] = color;
+            return i;
+        }
+    }
+    throw std::runtime_error("No free color id found");
+}
+
+void QmlNetPaintedItem::freeColor(int colorId) {
+    if(m_colorMap.find(colorId) != m_colorMap.end()) {
+        m_colorMap.erase(colorId);
+    }
+}
+
 void QmlNetPaintedItem::checkRecordingAndAdd(std::function<void(QPainter*)> action) {
     if(!m_isRecording) {
-        //TODO: throw
+        throw std::runtime_error("No recording session is running. Call beginRecordPaintActions");
     }
     m_recordedPaintActions.push_back(action);
 }
@@ -126,16 +183,16 @@ Q_DECL_EXPORT void qqmlnetpainteditem_endRecordPaintActions(QmlNetPaintedItem* p
     paintedItem->endRecordPaintActions();
 }
 
-Q_DECL_EXPORT void qqmlnetpainteditem_setPen(QmlNetPaintedItem* paintedItem, QChar* colorString) {
-    paintedItem->setPen(QString(colorString));
+Q_DECL_EXPORT void qqmlnetpainteditem_setPen(QmlNetPaintedItem* paintedItem, int colorId) {
+    paintedItem->setPen(colorId);
 }
 
 Q_DECL_EXPORT void qqmlnetpainteditem_resetPen(QmlNetPaintedItem* paintedItem) {
     paintedItem->resetPen();
 }
 
-Q_DECL_EXPORT void qqmlnetpainteditem_setBrush(QmlNetPaintedItem* paintedItem, QChar* colorString) {
-    paintedItem->setBrush(QString(colorString));
+Q_DECL_EXPORT void qqmlnetpainteditem_setBrush(QmlNetPaintedItem* paintedItem, int colorId) {
+    paintedItem->setBrush(colorId);
 }
 
 Q_DECL_EXPORT void qqmlnetpainteditem_resetBrush(QmlNetPaintedItem* paintedItem) {
@@ -146,6 +203,26 @@ Q_DECL_EXPORT void qqmlnetpainteditem_setFont(QmlNetPaintedItem* paintedItem, QC
     paintedItem->setFont(QString(fontFamilyName), isBold, isItalic, isUnderline, pxSize);
 }
 
+Q_DECL_EXPORT void qqmlnetpainteditem_setFontFamily(QmlNetPaintedItem* paintedItem, QChar* fontFamilyName) {
+    paintedItem->setFontFamily(QString(fontFamilyName));
+}
+
+Q_DECL_EXPORT void qqmlnetpainteditem_setFontBold(QmlNetPaintedItem* paintedItem, bool isBold) {
+    paintedItem->setFontBold(isBold);
+}
+
+Q_DECL_EXPORT void qqmlnetpainteditem_setFontItalic(QmlNetPaintedItem* paintedItem, bool isItalic) {
+    paintedItem->setFontItalic(isItalic);
+}
+
+Q_DECL_EXPORT void qqmlnetpainteditem_setFontUnderline(QmlNetPaintedItem* paintedItem, bool isUnderline) {
+    paintedItem->setFontUnderline(isUnderline);
+}
+
+Q_DECL_EXPORT void qqmlnetpainteditem_setFontSize(QmlNetPaintedItem* paintedItem, int pxSize) {
+    paintedItem->setFontSize(pxSize);
+}
+
 Q_DECL_EXPORT void qqmlnetpainteditem_drawText(QmlNetPaintedItem* paintedItem, int x, int y, QChar* text) {
     paintedItem->drawText(x, y, QString(text));
 }
@@ -154,12 +231,20 @@ Q_DECL_EXPORT void qqmlnetpainteditem_drawRect(QmlNetPaintedItem* paintedItem, i
     paintedItem->drawRect(x, y, width, height);
 }
 
-Q_DECL_EXPORT void qqmlnetpainteditem_fillRectColor(QmlNetPaintedItem* paintedItem, int x, int y, int width, int height, QChar* color) {
-    paintedItem->fillRect(x, y, width, height, QString(color));
+Q_DECL_EXPORT void qqmlnetpainteditem_fillRectColor(QmlNetPaintedItem* paintedItem, int x, int y, int width, int height, int colorId) {
+    paintedItem->fillRect(x, y, width, height, colorId);
 }
 
 Q_DECL_EXPORT void qqmlnetpainteditem_fillRect(QmlNetPaintedItem* paintedItem, int x, int y, int width, int height) {
     paintedItem->fillRect(x, y, width, height);
+}
+
+Q_DECL_EXPORT int qqmlnetpainteditem_createColor(QmlNetPaintedItem* paintedItem, QChar* colorString) {
+    return paintedItem->createColor(QString(colorString));
+}
+
+Q_DECL_EXPORT void qqmlnetpainteditem_freeColor(QmlNetPaintedItem* paintedItem, int colorId) {
+    paintedItem->freeColor(colorId);
 }
 
 }
