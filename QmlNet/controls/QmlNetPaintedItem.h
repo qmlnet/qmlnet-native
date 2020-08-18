@@ -4,6 +4,7 @@
 #include <QtQuick/QQuickPaintedItem>
 #include <QObject>
 #include <vector>
+#include <map>
 
 
 class QmlNetPaintedItem : public QQuickPaintedItem
@@ -23,21 +24,32 @@ public:
     void endRecordPaintActions();
 
     //Record api
-    void setPen(QString color);
+    void setPen(int colorId);
     void resetPen();
-    void setBrush(QString color);
+    void setBrush(int colorId);
     void resetBrush();
     void setFont(QString fontFamilyName, bool isBold, bool isItalic, bool isUnderline, int pxSize);
+    void setFontFamily(QString fontFamilyName);
+    void setFontBold(bool isBold);
+    void setFontItalic(bool isItalic);
+    void setFontUnderline(bool isUnderline);
+    void setFontSize(int pxSize);
     void drawText(int x, int y, QString text);
     void drawRect(int x, int y, int width, int height);
-    void fillRect(int x, int y, int width, int height, QString color);
+    void fillRect(int x, int y, int width, int height, int colorId);
     void fillRect(int x, int y, int width, int height);
+
+    //color helper
+    int createColor(QString colorString);
+    void freeColor(int colorId);
 
 private:
     bool m_isRecording = false;
     std::vector<std::function<void(QPainter*)>> m_paintActions;
     std::vector<std::function<void(QPainter*)>> m_recordedPaintActions;
     QObject* m_paintHandler = nullptr;
+
+    std::map<int, QColor> m_colorMap;
 
     QMutex m_paintActionMutex;
 
