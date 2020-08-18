@@ -16,6 +16,7 @@ HEADERS += $$PWD/QmlNet.h \
 
 include (QmlNet/types/types.pri)
 include (QmlNet/qml/qml.pri)
+include (QmlNet/controls/controls.pri)
 
 SOURCES += \
     $$PWD/QmlNet.cpp \
