@@ -43,6 +43,9 @@ public:
     int createColor(QString colorString);
     void freeColor(int colorId);
 
+    //helper
+    QSize getStringSize(QString fontFamilyName, int fontSizePx, QString text);
+
 private:
     bool m_isRecording = false;
     std::vector<std::function<void(QPainter*)>> m_paintActions;
