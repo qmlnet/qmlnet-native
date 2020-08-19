@@ -117,6 +117,13 @@ void QmlNetPaintedItem::drawText(int x, int y, QString text) {
     });
 }
 
+void QmlNetPaintedItem::drawText(int x, int y, int width, int height, QString text) {
+    checkRecordingAndAdd([x,y,text, width, height](QPainter* p) {
+        QRect rect(x, y, width, height);
+        p->drawText(rect, text);
+    });
+}
+
 void QmlNetPaintedItem::drawRect(int x, int y, int width, int height) {
     checkRecordingAndAdd([x,y,width, height](QPainter* p) {
         p->drawRect(x, y, width, height);
@@ -233,6 +240,10 @@ Q_DECL_EXPORT void qqmlnetpainteditem_setFontSize(QmlNetPaintedItem* paintedItem
 
 Q_DECL_EXPORT void qqmlnetpainteditem_drawText(QmlNetPaintedItem* paintedItem, int x, int y, QChar* text) {
     paintedItem->drawText(x, y, QString(text));
+}
+
+Q_DECL_EXPORT void qqmlnetpainteditem_drawTextRect(QmlNetPaintedItem* paintedItem, int x, int y, int width, int height, QChar* text) {
+    paintedItem->drawText(x, y, width, height, QString(text));
 }
 
 Q_DECL_EXPORT void qqmlnetpainteditem_drawRect(QmlNetPaintedItem* paintedItem, int x, int y, int width, int height) {
