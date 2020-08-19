@@ -154,6 +154,14 @@ void QmlNetPaintedItem::freeColor(int colorId) {
     }
 }
 
+QSize QmlNetPaintedItem::getStringSize(QString fontFamilyName, int fontSizePx, QString text) {
+    QFont font(fontFamilyName);
+    font.setPixelSize(fontSizePx);
+
+    QFontMetrics metrics(font);
+    return metrics.size(0, text);
+}
+
 void QmlNetPaintedItem::checkRecordingAndAdd(std::function<void(QPainter*)> action) {
     if(!m_isRecording) {
         throw std::runtime_error("No recording session is running. Call beginRecordPaintActions");
@@ -245,6 +253,19 @@ Q_DECL_EXPORT int qqmlnetpainteditem_createColor(QmlNetPaintedItem* paintedItem,
 
 Q_DECL_EXPORT void qqmlnetpainteditem_freeColor(QmlNetPaintedItem* paintedItem, int colorId) {
     paintedItem->freeColor(colorId);
+}
+
+struct StringSizeResult {
+    int width;
+    int height;
+};
+
+Q_DECL_EXPORT StringSizeResult qqmlnetpainteditem_getStringSize(QmlNetPaintedItem* paintedItem, QChar* fontFamily, int fontSizePx, QChar* text) {
+    auto size = paintedItem->getStringSize(QString(fontFamily), fontSizePx, QString(text));
+    StringSizeResult result;
+    result.width = size.width();
+    result.height = size.height();
+    return result;
 }
 
 }
