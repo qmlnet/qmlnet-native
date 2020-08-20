@@ -17,6 +17,22 @@ void QmlNetPaintedItem::setPaintHandler(QObject* paintHandler) {
     }
 }
 
+bool QmlNetPaintedItem::supportsTextInput() const {
+    return m_supportsTextInput;
+}
+
+void QmlNetPaintedItem::setSupportsTextInput(bool supportsTextInput) {
+    m_supportsTextInput = supportsTextInput;
+    setFlag(ItemAcceptsInputMethod, supportsTextInput);
+    setFlag(ItemIsFocusScope, supportsTextInput);
+}
+bool QmlNetPaintedItem::preeditActive() {
+    return m_preeditActive;
+}
+
+QString QmlNetPaintedItem::preeditText() {
+    return m_preeditText;
+}
 
 void QmlNetPaintedItem::beginRecordPaintActions() {
    m_isRecording = true;
@@ -167,6 +183,34 @@ QSize QmlNetPaintedItem::getStringSize(QString fontFamilyName, int fontSizePx, Q
 
     QFontMetrics metrics(font);
     return metrics.size(0, text);
+}
+
+void QmlNetPaintedItem::inputMethodEvent(QInputMethodEvent *e)
+{
+    auto preeditShouldBeActive = !e->preeditString().isEmpty();
+    bool hasBeenCommited = false;
+
+    if(m_preeditActive != preeditShouldBeActive) {
+        m_preeditActive = preeditShouldBeActive;
+        Q_EMIT preeditActiveChanged();
+        hasBeenCommited = true;
+    }
+    if(m_preeditText != e->preeditString()) {
+        m_preeditText = e->preeditString();
+        Q_EMIT preeditTextChanged();
+    }
+    if(hasBeenCommited && !e->commitString().isEmpty()) {
+        QKeyEvent* event = new QKeyEvent(QKeyEvent::KeyPress,
+                                         Qt::Key_unknown,
+                                         Qt::NoModifier,
+                                         e->commitString());
+        QCoreApplication::postEvent(this,event);
+    }
+    QQuickItem::inputMethodEvent(e);
+}
+
+QVariant QmlNetPaintedItem::inputMethodQuery(Qt::InputMethodQuery property) const {
+    return QQuickItem::inputMethodQuery(property);
 }
 
 void QmlNetPaintedItem::checkRecordingAndAdd(std::function<void(QPainter*)> action) {
