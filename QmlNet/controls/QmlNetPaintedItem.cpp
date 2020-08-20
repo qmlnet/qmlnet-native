@@ -133,10 +133,10 @@ void QmlNetPaintedItem::drawText(int x, int y, QString text) {
     });
 }
 
-void QmlNetPaintedItem::drawText(int x, int y, int width, int height, QString text) {
-    checkRecordingAndAdd([x,y,text, width, height](QPainter* p) {
+void QmlNetPaintedItem::drawText(int x, int y, int width, int height, int flags, QString text) {
+    checkRecordingAndAdd([x,y,text, width, height, flags](QPainter* p) {
         QRect rect(x, y, width, height);
-        p->drawText(rect, text);
+        p->drawText(rect, flags ,text);
     });
 }
 
@@ -285,8 +285,8 @@ Q_DECL_EXPORT void qqmlnetpainteditem_drawText(QmlNetPaintedItem* paintedItem, i
     paintedItem->drawText(x, y, QString(text));
 }
 
-Q_DECL_EXPORT void qqmlnetpainteditem_drawTextRect(QmlNetPaintedItem* paintedItem, int x, int y, int width, int height, QChar* text) {
-    paintedItem->drawText(x, y, width, height, QString(text));
+Q_DECL_EXPORT void qqmlnetpainteditem_drawTextRect(QmlNetPaintedItem* paintedItem, int x, int y, int width, int height, int flags, QChar* text) {
+    paintedItem->drawText(x, y, width, height, flags, QString(text));
 }
 
 Q_DECL_EXPORT void qqmlnetpainteditem_drawRect(QmlNetPaintedItem* paintedItem, int x, int y, int width, int height) {

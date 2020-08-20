@@ -44,7 +44,7 @@ public:
     void setFontUnderline(bool isUnderline);
     void setFontSize(int pxSize);
     void drawText(int x, int y, QString text);
-    void drawText(int x, int y, int width, int height, QString text);
+    void drawText(int x, int y, int width, int height, int flags, QString text);
     void drawRect(int x, int y, int width, int height);
     void fillRect(int x, int y, int width, int height, int colorId);
     void fillRect(int x, int y, int width, int height);
