@@ -178,14 +178,13 @@ void QmlNetPaintedItem::checkRecordingAndAdd(std::function<void(QPainter*)> acti
 
 void QmlNetPaintedItem::paint(QPainter *painter)
 {
-    std::vector<std::function<void(QPainter*)>> paintActionsCopy;
     m_paintActionMutex.lock();
-    paintActionsCopy = m_paintActions;
-    m_paintActionMutex.unlock();
 
-    for(auto pa : paintActionsCopy) {
+    for(auto pa : m_paintActions) {
         pa(painter);
     }
+
+    m_paintActionMutex.unlock();
 }
 
 extern "C" {
