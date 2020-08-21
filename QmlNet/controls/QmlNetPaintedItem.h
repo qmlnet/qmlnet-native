@@ -5,6 +5,7 @@
 #include <QObject>
 #include <vector>
 #include <map>
+#include <QMutex>
 #include "INetQPainter.h"
 
 
