@@ -6,14 +6,19 @@ QmlNetPaintedItem::QmlNetPaintedItem(QQuickItem *parent)
 {
 }
 
+QmlNetPaintedItem::~QmlNetPaintedItem() {
+    setPaintedItemToHandler(m_paintHandler, nullptr);
+}
+
 QObject* QmlNetPaintedItem::paintHandler() const {
     return m_paintHandler;
 }
 
 void QmlNetPaintedItem::setPaintHandler(QObject* paintHandler) {
+    setPaintedItemToHandler(m_paintHandler, nullptr);
     m_paintHandler = paintHandler;
     if(m_paintHandler != nullptr) {
-        QMetaObject::invokeMethod(m_paintHandler, "__setPaintedItem", Q_ARG(QVariant, QVariant::fromValue((int64_t)this)));
+        setPaintedItemToHandler(m_paintHandler, this);
     }
 }
 
@@ -24,7 +29,6 @@ bool QmlNetPaintedItem::supportsTextInput() const {
 void QmlNetPaintedItem::setSupportsTextInput(bool supportsTextInput) {
     m_supportsTextInput = supportsTextInput;
     setFlag(ItemAcceptsInputMethod, supportsTextInput);
-    setFlag(ItemIsFocusScope, supportsTextInput);
 }
 bool QmlNetPaintedItem::preeditActive() {
     return m_preeditActive;
@@ -75,7 +79,8 @@ void QmlNetPaintedItem::resetBrush() {
     });
 }
 
-void QmlNetPaintedItem::setFont(QString fontFamilyName, bool isBold, bool isItalic, bool isUnderline, int pxSize) {
+void QmlNetPaintedItem::setFont(int fontFamilyId, bool isBold, bool isItalic, bool isUnderline, int pxSize) {
+    auto fontFamilyName = m_fontFamilyMap[fontFamilyId];
     checkRecordingAndAdd([fontFamilyName, isBold, isItalic, isUnderline, pxSize](QPainter* p) {
         auto font = QFont(fontFamilyName);
         font.setBold(isBold);
@@ -86,7 +91,8 @@ void QmlNetPaintedItem::setFont(QString fontFamilyName, bool isBold, bool isItal
     });
 }
 
-void QmlNetPaintedItem::setFontFamily(QString fontFamilyName) {
+void QmlNetPaintedItem::setFontFamily(int fontFamilyId) {
+    auto fontFamilyName = m_fontFamilyMap[fontFamilyId];
     checkRecordingAndAdd([fontFamilyName](QPainter* p) {
        auto font = p->font();
        font.setFamily(fontFamilyName);
@@ -160,7 +166,7 @@ void QmlNetPaintedItem::fillRect(int x, int y, int width, int height) {
     });
 }
 
-int QmlNetPaintedItem::createColor(QString colorString) {
+int QmlNetPaintedItem::registerColor(QString colorString) {
     QColor color(colorString);
     for(int i=0; i<std::numeric_limits<int>::max(); i++) {
         if(m_colorMap.find(i) == m_colorMap.end()) {
@@ -177,7 +183,24 @@ void QmlNetPaintedItem::freeColor(int colorId) {
     }
 }
 
-QSize QmlNetPaintedItem::getStringSize(QString fontFamilyName, int fontSizePx, QString text) {
+int QmlNetPaintedItem::registerFontFamily(QString fontFamilyString) {
+    for(int i=0; i<std::numeric_limits<int>::max(); i++) {
+        if(m_fontFamilyMap.find(i) == m_fontFamilyMap.end()) {
+            m_fontFamilyMap[i] = fontFamilyString;
+            return i;
+        }
+    }
+    throw std::runtime_error("No free font family id found");
+}
+
+void QmlNetPaintedItem::freeFontFamily(int fontFamilyId) {
+    if(m_fontFamilyMap.find(fontFamilyId) != m_fontFamilyMap.end()) {
+        m_fontFamilyMap.erase(fontFamilyId);
+    }
+}
+
+QSize QmlNetPaintedItem::getStringSize(int fontFamilyId, int fontSizePx, QString text) {
+    auto fontFamilyName = m_fontFamilyMap[fontFamilyId];
     QFont font(fontFamilyName);
     font.setPixelSize(fontSizePx);
 
@@ -220,6 +243,14 @@ void QmlNetPaintedItem::checkRecordingAndAdd(std::function<void(QPainter*)> acti
     m_recordedPaintActions.push_back(action);
 }
 
+void QmlNetPaintedItem::setPaintedItemToHandler(QObject* handler, QmlNetPaintedItem* paintedItemPtr) {
+    if(handler != nullptr) {
+        auto paintedItemRef = (int64_t)paintedItemPtr;
+        auto inetQPainterRef = (int64_t)((INetQPainter*)paintedItemPtr);
+        QMetaObject::invokeMethod(handler, "__setPaintedItem", Q_ARG(QVariant, QVariant::fromValue(paintedItemRef)), Q_ARG(QVariant, QVariant::fromValue(QVariant::fromValue(inetQPainterRef))));
+    }
+}
+
 void QmlNetPaintedItem::paint(QPainter *painter)
 {
     m_paintActionMutex.lock();
@@ -239,87 +270,6 @@ Q_DECL_EXPORT void qqmlnetpainteditem_beginRecordPaintActions(QmlNetPaintedItem*
 
 Q_DECL_EXPORT void qqmlnetpainteditem_endRecordPaintActions(QmlNetPaintedItem* paintedItem) {
     paintedItem->endRecordPaintActions();
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_setPen(QmlNetPaintedItem* paintedItem, int colorId) {
-    paintedItem->setPen(colorId);
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_resetPen(QmlNetPaintedItem* paintedItem) {
-    paintedItem->resetPen();
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_setBrush(QmlNetPaintedItem* paintedItem, int colorId) {
-    paintedItem->setBrush(colorId);
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_resetBrush(QmlNetPaintedItem* paintedItem) {
-    paintedItem->resetBrush();
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_setFont(QmlNetPaintedItem* paintedItem, QChar* fontFamilyName, bool isBold, bool isItalic, bool isUnderline, int pxSize) {
-    paintedItem->setFont(QString(fontFamilyName), isBold, isItalic, isUnderline, pxSize);
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_setFontFamily(QmlNetPaintedItem* paintedItem, QChar* fontFamilyName) {
-    paintedItem->setFontFamily(QString(fontFamilyName));
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_setFontBold(QmlNetPaintedItem* paintedItem, bool isBold) {
-    paintedItem->setFontBold(isBold);
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_setFontItalic(QmlNetPaintedItem* paintedItem, bool isItalic) {
-    paintedItem->setFontItalic(isItalic);
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_setFontUnderline(QmlNetPaintedItem* paintedItem, bool isUnderline) {
-    paintedItem->setFontUnderline(isUnderline);
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_setFontSize(QmlNetPaintedItem* paintedItem, int pxSize) {
-    paintedItem->setFontSize(pxSize);
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_drawText(QmlNetPaintedItem* paintedItem, int x, int y, QChar* text) {
-    paintedItem->drawText(x, y, QString(text));
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_drawTextRect(QmlNetPaintedItem* paintedItem, int x, int y, int width, int height, int flags, QChar* text) {
-    paintedItem->drawText(x, y, width, height, flags, QString(text));
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_drawRect(QmlNetPaintedItem* paintedItem, int x, int y, int width, int height) {
-    paintedItem->drawRect(x, y, width, height);
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_fillRectColor(QmlNetPaintedItem* paintedItem, int x, int y, int width, int height, int colorId) {
-    paintedItem->fillRect(x, y, width, height, colorId);
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_fillRect(QmlNetPaintedItem* paintedItem, int x, int y, int width, int height) {
-    paintedItem->fillRect(x, y, width, height);
-}
-
-Q_DECL_EXPORT int qqmlnetpainteditem_createColor(QmlNetPaintedItem* paintedItem, QChar* colorString) {
-    return paintedItem->createColor(QString(colorString));
-}
-
-Q_DECL_EXPORT void qqmlnetpainteditem_freeColor(QmlNetPaintedItem* paintedItem, int colorId) {
-    paintedItem->freeColor(colorId);
-}
-
-struct StringSizeResult {
-    int width;
-    int height;
-};
-
-Q_DECL_EXPORT StringSizeResult qqmlnetpainteditem_getStringSize(QmlNetPaintedItem* paintedItem, QChar* fontFamily, int fontSizePx, QChar* text) {
-    auto size = paintedItem->getStringSize(QString(fontFamily), fontSizePx, QString(text));
-    StringSizeResult result;
-    result.width = size.width();
-    result.height = size.height();
-    return result;
 }
 
 }
