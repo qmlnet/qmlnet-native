@@ -46,6 +46,8 @@ void QmlNetPaintedItem::beginRecordPaintActions() {
 
 void QmlNetPaintedItem::endRecordPaintActions() {
    m_isRecording = false;
+   //if the paint calls come in the UI thread this should not be necessary because the Renderer Thread halts the UI thread
+   //but better safe than sorry
    m_paintActionMutex.lock();
    m_paintActions = m_recordedPaintActions;
    m_paintActionMutex.unlock();
@@ -167,6 +169,210 @@ void QmlNetPaintedItem::fillRect(int x, int y, int width, int height) {
     });
 }
 
+void QmlNetPaintedItem::drawArc(int x, int y, int width, int height, int startAngle, int spanAngle) {
+    checkRecordingAndAdd([x,y,width, height, startAngle, spanAngle](QPainter* p) {
+        p->drawArc(x, y, width, height, startAngle, spanAngle);
+    });
+}
+
+void QmlNetPaintedItem::drawChord(int x, int y, int width, int height, int startAngle, int spanAngle) {
+    checkRecordingAndAdd([x,y,width, height, startAngle, spanAngle](QPainter* p) {
+        p->drawChord(x, y, width, height, startAngle, spanAngle);
+    });
+}
+
+void QmlNetPaintedItem::drawConvexPolygon(const QPoint *points, int pointCount) {
+    std::vector<QPoint> pointsCopy;
+    for(int i=0; i<pointCount; i++) {
+        pointsCopy.push_back(points[i]);
+    }
+    checkRecordingAndAdd([pointsCopy](QPainter* p) {
+        p->drawConvexPolygon(&pointsCopy[0], pointsCopy.size());
+    });
+}
+
+void QmlNetPaintedItem::drawEllipse(int x, int y, int width, int height) {
+    checkRecordingAndAdd([x,y,width, height](QPainter* p) {
+        p->drawEllipse(x, y, width, height);
+    });
+}
+
+void QmlNetPaintedItem::drawImage(const QPoint &point, const QImage &image, const QRect &source, Qt::ImageConversionFlags flags) {
+    QPoint pointCopy = point;
+    QImage imgCopy = image;
+    QRect sourceCopy = source;
+    checkRecordingAndAdd([pointCopy, imgCopy, sourceCopy, flags](QPainter* p) {
+        p->drawImage(pointCopy, imgCopy, sourceCopy, flags);
+    });
+}
+
+void QmlNetPaintedItem::drawLine(int x1, int y1, int x2, int y2) {
+    checkRecordingAndAdd([x1, y1, x2, y2](QPainter* p) {
+        p->drawLine(x1, y1, x2, y2);
+    });
+}
+
+//void QmlNetPaintedItem::drawPath(const QPainterPath &path) {
+//    QPainterPath pathCopy = path;
+//    checkRecordingAndAdd([pathCopy](QPainter* p) {
+//        p->drawPath(pathCopy);
+//    });
+//}
+
+//void QmlNetPaintedItem::fillPath(const QPainterPath &path, int colorId) {
+//    QPainterPath pathCopy = path;
+//    auto color = m_colorMap[colorId];
+//    checkRecordingAndAdd([pathCopy, color](QPainter* p) {
+//        p->fillPath(pathCopy, QBrush(color));
+//    });
+//}
+
+//void QmlNetPaintedItem::strokePath(const QPainterPath &path, int colorId) {
+//    QPainterPath pathCopy = path;
+//    auto color = m_colorMap[colorId];
+//    checkRecordingAndAdd([pathCopy, color](QPainter* p) {
+//        p->strokePath(pathCopy, QPen(color));
+//    });
+//}
+
+void QmlNetPaintedItem::drawPie(int x, int y, int width, int height, int startAngle, int spanAngle) {
+    checkRecordingAndAdd([x, y, width, height, startAngle, spanAngle](QPainter* p) {
+        p->drawPie(x, y, width, height, startAngle, spanAngle);
+    });
+}
+
+void QmlNetPaintedItem::drawPoint(int x, int y) {
+    checkRecordingAndAdd([x, y](QPainter* p) {
+        p->drawPoint(x, y);
+    });
+}
+
+void QmlNetPaintedItem::drawPolygon(const QPoint *points, int pointCount, Qt::FillRule fillRule) {
+    std::vector<QPoint> pointsCopy;
+    for(int i=0; i<pointCount; i++) {
+        pointsCopy.push_back(points[i]);
+    }
+    checkRecordingAndAdd([pointsCopy, fillRule](QPainter* p) {
+        p->drawPolygon(&pointsCopy[0], pointsCopy.size(), fillRule);
+    });
+}
+
+void QmlNetPaintedItem::drawPolyline(const QPoint *points, int pointCount) {
+    std::vector<QPoint> pointsCopy;
+    for(int i=0; i<pointCount; i++) {
+        pointsCopy.push_back(points[i]);
+    }
+    checkRecordingAndAdd([pointsCopy](QPainter* p) {
+        p->drawPolyline(&pointsCopy[0], pointsCopy.size());
+    });
+}
+
+void QmlNetPaintedItem::drawRoundedRect(int x, int y, int w, int h, qreal xRadius, qreal yRadius, Qt::SizeMode mode) {
+    checkRecordingAndAdd([x, y, w, h, xRadius, yRadius, mode](QPainter* p) {
+        p->drawRoundedRect(x, y, w, h, xRadius, yRadius, mode);
+    });
+}
+
+void QmlNetPaintedItem::eraseRect(int x, int y, int width, int height) {
+    checkRecordingAndAdd([x, y, width, height](QPainter* p) {
+        p->eraseRect(x, y, width, height);
+    });
+}
+
+void QmlNetPaintedItem::setBackground(int colorId) {
+    auto color = m_colorMap[colorId];
+    checkRecordingAndAdd([color](QPainter* p) {
+        p->setBackground(QBrush(color));
+    });
+}
+
+void QmlNetPaintedItem::setBackgroundMode(Qt::BGMode mode) {
+    checkRecordingAndAdd([mode](QPainter* p) {
+        p->setBackgroundMode(mode);
+    });
+}
+
+//void QmlNetPaintedItem::setClipPath(const QPainterPath &path, Qt::ClipOperation operation) {
+//    QPainterPath pathCopy = path;
+//    checkRecordingAndAdd([pathCopy, operation](QPainter* p) {
+//        p->setClipPath(pathCopy, operation);
+//    });
+//}
+
+void QmlNetPaintedItem::setClipRect(int x, int y, int width, int height, Qt::ClipOperation operation) {
+    checkRecordingAndAdd([x, y, width, height, operation](QPainter* p) {
+        p->setClipRect(x, y, width, height, operation);
+    });
+}
+
+void QmlNetPaintedItem::setClipping(bool enable) {
+    checkRecordingAndAdd([enable](QPainter* p) {
+        p->setClipping(enable);
+    });
+}
+
+void QmlNetPaintedItem::setCompositionMode(QPainter::CompositionMode mode) {
+    checkRecordingAndAdd([mode](QPainter* p) {
+        p->setCompositionMode(mode);
+    });
+}
+
+void QmlNetPaintedItem::setLayoutDirection(Qt::LayoutDirection direction) {
+    checkRecordingAndAdd([direction](QPainter* p) {
+        p->setLayoutDirection(direction);
+    });
+}
+
+void QmlNetPaintedItem::setOpacity(qreal opacity) {
+    checkRecordingAndAdd([opacity](QPainter* p) {
+        p->setOpacity(opacity);
+    });
+}
+
+void QmlNetPaintedItem::setRenderHint(QPainter::RenderHint hint, bool on) {
+    checkRecordingAndAdd([hint, on](QPainter* p) {
+        p->setRenderHint(hint, on);
+    });
+}
+
+void QmlNetPaintedItem::setTransform(const QTransform &transform, bool combine) {
+    QTransform transformCopy = transform;
+    checkRecordingAndAdd([transformCopy, combine](QPainter* p) {
+        p->setTransform(transformCopy, combine);
+    });
+}
+
+void QmlNetPaintedItem::setViewTransformEnabled(bool enable) {
+    checkRecordingAndAdd([enable](QPainter* p) {
+        p->setViewTransformEnabled(enable);
+    });
+}
+
+void QmlNetPaintedItem::setWorldTransform(const QTransform &matrix, bool combine) {
+    QTransform transformCopy = matrix;
+    checkRecordingAndAdd([transformCopy, combine](QPainter* p) {
+        p->setWorldTransform(transformCopy, combine);
+    });
+}
+
+void QmlNetPaintedItem::setWorldMatrixEnabled(bool enable) {
+    checkRecordingAndAdd([enable](QPainter* p) {
+        p->setWorldMatrixEnabled(enable);
+    });
+}
+
+void QmlNetPaintedItem::shear(qreal sh, qreal sv) {
+    checkRecordingAndAdd([sh, sv](QPainter* p) {
+        p->shear(sh, sv);
+    });
+}
+
+void QmlNetPaintedItem::translate(qreal dx, qreal dy) {
+    checkRecordingAndAdd([dx, dy](QPainter* p) {
+        p->translate(dx, dy);
+    });
+}
+
 int QmlNetPaintedItem::registerColor(QString colorString) {
     QColor color(colorString);
     for(int i=0; i<std::numeric_limits<int>::max(); i++) {
@@ -241,7 +447,11 @@ void QmlNetPaintedItem::checkRecordingAndAdd(std::function<void(QPainter*)> acti
     if(!m_isRecording) {
         throw std::runtime_error("No recording session is running. Call beginRecordPaintActions");
     }
+    //this makes the record API thread safe so that it is possible on the .Net side to add the recordings
+    //in parallel (as long as they don't depend on each other)
+    m_recordActionMutex.lock();
     m_recordedPaintActions.push_back(action);
+    m_recordActionMutex.unlock();
 }
 
 void QmlNetPaintedItem::setPaintedItemToHandler(QObject* handler, QmlNetPaintedItem* paintedItemPtr) {
