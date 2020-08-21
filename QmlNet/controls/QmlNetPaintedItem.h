@@ -5,9 +5,10 @@
 #include <QObject>
 #include <vector>
 #include <map>
+#include "INetQPainter.h"
 
 
-class QmlNetPaintedItem : public QQuickPaintedItem
+class QmlNetPaintedItem : public QQuickPaintedItem, INetQPainter
 {
     Q_OBJECT
     Q_PROPERTY(QObject* paintHandler READ paintHandler WRITE setPaintHandler)
@@ -17,6 +18,7 @@ class QmlNetPaintedItem : public QQuickPaintedItem
     QML_ELEMENT
 public:
     QmlNetPaintedItem(QQuickItem *parent = nullptr);
+    virtual ~QmlNetPaintedItem();
 
     QObject* paintHandler() const;
     void setPaintHandler(QObject* paintHandler);
@@ -33,28 +35,31 @@ public:
     void endRecordPaintActions();
 
     //Record api
-    void setPen(int colorId);
-    void resetPen();
-    void setBrush(int colorId);
-    void resetBrush();
-    void setFont(QString fontFamilyName, bool isBold, bool isItalic, bool isUnderline, int pxSize);
-    void setFontFamily(QString fontFamilyName);
-    void setFontBold(bool isBold);
-    void setFontItalic(bool isItalic);
-    void setFontUnderline(bool isUnderline);
-    void setFontSize(int pxSize);
-    void drawText(int x, int y, QString text);
-    void drawText(int x, int y, int width, int height, int flags, QString text);
-    void drawRect(int x, int y, int width, int height);
-    void fillRect(int x, int y, int width, int height, int colorId);
-    void fillRect(int x, int y, int width, int height);
+    void setPen(int colorId) override;
+    void resetPen() override;
+    void setBrush(int colorId) override;
+    void resetBrush() override;
+    void setFont(int fontFamilyId, bool isBold, bool isItalic, bool isUnderline, int pxSize) override;
+    void setFontFamily(int fontFamilyId) override;
+    void setFontBold(bool isBold) override;
+    void setFontItalic(bool isItalic) override;
+    void setFontUnderline(bool isUnderline) override;
+    void setFontSize(int pxSize) override;
+    void drawText(int x, int y, QString text) override;
+    void drawText(int x, int y, int width, int height, int flags, QString text) override;
+    void drawRect(int x, int y, int width, int height) override;
+    void fillRect(int x, int y, int width, int height, int colorId) override;
+    void fillRect(int x, int y, int width, int height) override;
 
     //color helper
-    int createColor(QString colorString);
-    void freeColor(int colorId);
+    int registerColor(QString colorString) override;
+    void freeColor(int colorId) override;
+
+    int registerFontFamily(QString fontFamily) override;
+    void freeFontFamily(int fontFamilyId) override;
 
     //helper
-    QSize getStringSize(QString fontFamilyName, int fontSizePx, QString text);
+    QSize getStringSize(int fontFamilyId, int fontSizePx, QString text) override;
 
     //input method support
     void inputMethodEvent(QInputMethodEvent *e) override;
@@ -70,10 +75,12 @@ private:
     QString m_preeditText;
 
     std::map<int, QColor> m_colorMap;
+    std::map<int, QString> m_fontFamilyMap;
 
     QMutex m_paintActionMutex;
 
     void checkRecordingAndAdd(std::function<void(QPainter*)> action);
+    static void setPaintedItemToHandler(QObject* handler, QmlNetPaintedItem* paintedItemPtr);
 };
 
 #endif // QMLNETPAINTEDITEM_H
