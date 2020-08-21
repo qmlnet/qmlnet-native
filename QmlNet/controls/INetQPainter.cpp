@@ -113,7 +113,7 @@ struct INetQPainter_Rect {
 };
 
 Q_DECL_EXPORT void inetqpainter_drawConvexPolygon(INetQPainter* painter, INetQPainter_Point* points, int pointCount) {
-    std::vector<QPoint> pointVector(pointCount);
+    std::vector<QPoint> pointVector;
     for(int i=0; i<pointCount; i++) {
         pointVector.push_back(QPoint(points[i].x, points[i].y));
     }
@@ -150,7 +150,7 @@ Q_DECL_EXPORT void inetqpainter_drawPoint(INetQPainter* painter, int x, int y) {
 }
 
 Q_DECL_EXPORT void inetqpainter_drawPolygon(INetQPainter* painter, INetQPainter_Point* points, int pointCount, bool oddFill) {
-    std::vector<QPoint> pointVector(pointCount);
+    std::vector<QPoint> pointVector;
     for(int i=0; i<pointCount; i++) {
         pointVector.push_back(QPoint(points[i].x, points[i].y));
     }
@@ -160,7 +160,7 @@ Q_DECL_EXPORT void inetqpainter_drawPolygon(INetQPainter* painter, INetQPainter_
 }
 
 Q_DECL_EXPORT void inetqpainter_drawPolyline(INetQPainter* painter, INetQPainter_Point* points, int pointCount) {
-    std::vector<QPoint> pointVector(pointCount);
+    std::vector<QPoint> pointVector;
     for(int i=0; i<pointCount; i++) {
         pointVector.push_back(QPoint(points[i].x, points[i].y));
     }
