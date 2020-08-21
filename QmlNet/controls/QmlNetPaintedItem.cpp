@@ -1,5 +1,6 @@
 #include "QmlNetPaintedItem.h"
 #include <QPainter>
+#include <stdexcept>
 
 QmlNetPaintedItem::QmlNetPaintedItem(QQuickItem *parent)
     : QQuickPaintedItem(parent)
