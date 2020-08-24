@@ -1,5 +1,5 @@
-#ifndef QMLNETPAINTEDITEM_H
-#define QMLNETPAINTEDITEM_H
+#ifndef QMLNETRECORDINGPAINTEDITEM_H
+#define QMLNETRECORDINGPAINTEDITEM_H
 
 #include <QtQuick/QQuickPaintedItem>
 #include <QObject>
@@ -9,7 +9,7 @@
 #include "INetQPainter.h"
 
 
-class QmlNetPaintedItem : public QQuickPaintedItem, INetQPainter
+class QmlNetRecordingPaintedItem : public QQuickPaintedItem, INetQPainter
 {
     Q_OBJECT
     Q_PROPERTY(QObject* paintHandler READ paintHandler WRITE setPaintHandler)
@@ -18,8 +18,8 @@ class QmlNetPaintedItem : public QQuickPaintedItem, INetQPainter
     Q_PROPERTY(QString preeditText READ preeditText NOTIFY preeditTextChanged)
     QML_ELEMENT
 public:
-    QmlNetPaintedItem(QQuickItem *parent = nullptr);
-    ~QmlNetPaintedItem();
+    QmlNetRecordingPaintedItem(QQuickItem *parent = nullptr);
+    ~QmlNetRecordingPaintedItem();
 
     QObject* paintHandler() const;
     void setPaintHandler(QObject* paintHandler);
@@ -122,7 +122,7 @@ private:
     QMutex m_recordActionMutex;
 
     void checkRecordingAndAdd(std::function<void(QPainter*)> action);
-    static void setPaintedItemToHandler(QObject* handler, QmlNetPaintedItem* paintedItemPtr);
+    static void setPaintedItemToHandler(QObject* handler, QmlNetRecordingPaintedItem* paintedItemPtr);
 };
 
-#endif // QMLNETPAINTEDITEM_H
+#endif // QMLNETRECORDINGPAINTEDITEM_H

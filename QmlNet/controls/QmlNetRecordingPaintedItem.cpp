@@ -1,21 +1,21 @@
-#include "QmlNetPaintedItem.h"
+#include "QmlNetRecordingPaintedItem.h"
 #include <QPainter>
 #include <stdexcept>
 
-QmlNetPaintedItem::QmlNetPaintedItem(QQuickItem *parent)
+QmlNetRecordingPaintedItem::QmlNetRecordingPaintedItem(QQuickItem *parent)
     : QQuickPaintedItem(parent)
 {
 }
 
-QmlNetPaintedItem::~QmlNetPaintedItem() {
+QmlNetRecordingPaintedItem::~QmlNetRecordingPaintedItem() {
     setPaintedItemToHandler(m_paintHandler, nullptr);
 }
 
-QObject* QmlNetPaintedItem::paintHandler() const {
+QObject* QmlNetRecordingPaintedItem::paintHandler() const {
     return m_paintHandler;
 }
 
-void QmlNetPaintedItem::setPaintHandler(QObject* paintHandler) {
+void QmlNetRecordingPaintedItem::setPaintHandler(QObject* paintHandler) {
     setPaintedItemToHandler(m_paintHandler, nullptr);
     m_paintHandler = paintHandler;
     if(m_paintHandler != nullptr) {
@@ -23,28 +23,28 @@ void QmlNetPaintedItem::setPaintHandler(QObject* paintHandler) {
     }
 }
 
-bool QmlNetPaintedItem::supportsTextInput() const {
+bool QmlNetRecordingPaintedItem::supportsTextInput() const {
     return m_supportsTextInput;
 }
 
-void QmlNetPaintedItem::setSupportsTextInput(bool supportsTextInput) {
+void QmlNetRecordingPaintedItem::setSupportsTextInput(bool supportsTextInput) {
     m_supportsTextInput = supportsTextInput;
     setFlag(ItemAcceptsInputMethod, supportsTextInput);
 }
-bool QmlNetPaintedItem::preeditActive() {
+bool QmlNetRecordingPaintedItem::preeditActive() {
     return m_preeditActive;
 }
 
-QString QmlNetPaintedItem::preeditText() {
+QString QmlNetRecordingPaintedItem::preeditText() {
     return m_preeditText;
 }
 
-void QmlNetPaintedItem::beginRecordPaintActions() {
+void QmlNetRecordingPaintedItem::beginRecordPaintActions() {
    m_isRecording = true;
    m_recordedPaintActions.clear();
 }
 
-void QmlNetPaintedItem::endRecordPaintActions() {
+void QmlNetRecordingPaintedItem::endRecordPaintActions() {
    m_isRecording = false;
    //if the paint calls come in the UI thread this should not be necessary because the Renderer Thread halts the UI thread
    //but better safe than sorry
@@ -54,7 +54,7 @@ void QmlNetPaintedItem::endRecordPaintActions() {
    update();
 }
 
-void QmlNetPaintedItem::setPen(int colorId) {
+void QmlNetRecordingPaintedItem::setPen(int colorId) {
     auto color = m_colorMap.at(colorId);
     checkRecordingAndAdd([color](QPainter* p) {
         QPen pen(color);
@@ -62,13 +62,13 @@ void QmlNetPaintedItem::setPen(int colorId) {
     });
 }
 
-void QmlNetPaintedItem::resetPen() {
+void QmlNetRecordingPaintedItem::resetPen() {
     checkRecordingAndAdd([](QPainter* p) {
        p->setPen(QPen());
     });
 }
 
-void QmlNetPaintedItem::setBrush(int colorId) {
+void QmlNetRecordingPaintedItem::setBrush(int colorId) {
     auto color = m_colorMap.at(colorId);
     checkRecordingAndAdd([color](QPainter* p) {
         QBrush brush(color);
@@ -76,13 +76,13 @@ void QmlNetPaintedItem::setBrush(int colorId) {
     });
 }
 
-void QmlNetPaintedItem::resetBrush() {
+void QmlNetRecordingPaintedItem::resetBrush() {
     checkRecordingAndAdd([](QPainter* p) {
        p->setBrush(QBrush());
     });
 }
 
-void QmlNetPaintedItem::setFont(int fontFamilyId, bool isBold, bool isItalic, bool isUnderline, int pxSize) {
+void QmlNetRecordingPaintedItem::setFont(int fontFamilyId, bool isBold, bool isItalic, bool isUnderline, int pxSize) {
     auto fontFamilyName = m_fontFamilyMap[fontFamilyId];
     checkRecordingAndAdd([fontFamilyName, isBold, isItalic, isUnderline, pxSize](QPainter* p) {
         auto font = QFont(fontFamilyName);
@@ -94,7 +94,7 @@ void QmlNetPaintedItem::setFont(int fontFamilyId, bool isBold, bool isItalic, bo
     });
 }
 
-void QmlNetPaintedItem::setFontFamily(int fontFamilyId) {
+void QmlNetRecordingPaintedItem::setFontFamily(int fontFamilyId) {
     auto fontFamilyName = m_fontFamilyMap[fontFamilyId];
     checkRecordingAndAdd([fontFamilyName](QPainter* p) {
        auto font = p->font();
@@ -103,7 +103,7 @@ void QmlNetPaintedItem::setFontFamily(int fontFamilyId) {
     });
 }
 
-void QmlNetPaintedItem::setFontBold(bool isBold) {
+void QmlNetRecordingPaintedItem::setFontBold(bool isBold) {
     checkRecordingAndAdd([isBold](QPainter* p) {
        auto font = p->font();
        font.setBold(isBold);
@@ -111,7 +111,7 @@ void QmlNetPaintedItem::setFontBold(bool isBold) {
     });
 }
 
-void QmlNetPaintedItem::setFontItalic(bool isItalic) {
+void QmlNetRecordingPaintedItem::setFontItalic(bool isItalic) {
     checkRecordingAndAdd([isItalic](QPainter* p) {
        auto font = p->font();
        font.setItalic(isItalic);
@@ -119,7 +119,7 @@ void QmlNetPaintedItem::setFontItalic(bool isItalic) {
     });
 }
 
-void QmlNetPaintedItem::setFontUnderline(bool isUnderline) {
+void QmlNetRecordingPaintedItem::setFontUnderline(bool isUnderline) {
     checkRecordingAndAdd([isUnderline](QPainter* p) {
        auto font = p->font();
        font.setUnderline(isUnderline);
@@ -127,7 +127,7 @@ void QmlNetPaintedItem::setFontUnderline(bool isUnderline) {
     });
 }
 
-void QmlNetPaintedItem::setFontSize(int pxSize) {
+void QmlNetRecordingPaintedItem::setFontSize(int pxSize) {
     checkRecordingAndAdd([pxSize](QPainter* p) {
        auto font = p->font();
        font.setPixelSize(pxSize);
@@ -135,27 +135,27 @@ void QmlNetPaintedItem::setFontSize(int pxSize) {
     });
 }
 
-void QmlNetPaintedItem::drawText(int x, int y, QString text) {
+void QmlNetRecordingPaintedItem::drawText(int x, int y, QString text) {
     checkRecordingAndAdd([x,y,text](QPainter* p) {
         auto vp = p->viewport();
         p->drawText(vp.x() + x, vp.y() + y, text);
     });
 }
 
-void QmlNetPaintedItem::drawText(int x, int y, int width, int height, int flags, QString text) {
+void QmlNetRecordingPaintedItem::drawText(int x, int y, int width, int height, int flags, QString text) {
     checkRecordingAndAdd([x,y,text, width, height, flags](QPainter* p) {
         QRect rect(x, y, width, height);
         p->drawText(rect, flags ,text);
     });
 }
 
-void QmlNetPaintedItem::drawRect(int x, int y, int width, int height) {
+void QmlNetRecordingPaintedItem::drawRect(int x, int y, int width, int height) {
     checkRecordingAndAdd([x,y,width, height](QPainter* p) {
         p->drawRect(x, y, width, height);
     });
 }
 
-void QmlNetPaintedItem::fillRect(int x, int y, int width, int height, int colorId) {
+void QmlNetRecordingPaintedItem::fillRect(int x, int y, int width, int height, int colorId) {
     auto color = m_colorMap.at(colorId);
     checkRecordingAndAdd([x,y,width, height, color](QPainter* p) {
         QBrush brush(color);
@@ -163,25 +163,25 @@ void QmlNetPaintedItem::fillRect(int x, int y, int width, int height, int colorI
     });
 }
 
-void QmlNetPaintedItem::fillRect(int x, int y, int width, int height) {
+void QmlNetRecordingPaintedItem::fillRect(int x, int y, int width, int height) {
     checkRecordingAndAdd([x,y,width, height](QPainter* p) {
         p->fillRect(x, y, width, height, p->brush());
     });
 }
 
-void QmlNetPaintedItem::drawArc(int x, int y, int width, int height, int startAngle, int spanAngle) {
+void QmlNetRecordingPaintedItem::drawArc(int x, int y, int width, int height, int startAngle, int spanAngle) {
     checkRecordingAndAdd([x,y,width, height, startAngle, spanAngle](QPainter* p) {
         p->drawArc(x, y, width, height, startAngle, spanAngle);
     });
 }
 
-void QmlNetPaintedItem::drawChord(int x, int y, int width, int height, int startAngle, int spanAngle) {
+void QmlNetRecordingPaintedItem::drawChord(int x, int y, int width, int height, int startAngle, int spanAngle) {
     checkRecordingAndAdd([x,y,width, height, startAngle, spanAngle](QPainter* p) {
         p->drawChord(x, y, width, height, startAngle, spanAngle);
     });
 }
 
-void QmlNetPaintedItem::drawConvexPolygon(const QPoint *points, int pointCount) {
+void QmlNetRecordingPaintedItem::drawConvexPolygon(const QPoint *points, int pointCount) {
     std::vector<QPoint> pointsCopy;
     for(int i=0; i<pointCount; i++) {
         pointsCopy.push_back(points[i]);
@@ -191,13 +191,13 @@ void QmlNetPaintedItem::drawConvexPolygon(const QPoint *points, int pointCount) 
     });
 }
 
-void QmlNetPaintedItem::drawEllipse(int x, int y, int width, int height) {
+void QmlNetRecordingPaintedItem::drawEllipse(int x, int y, int width, int height) {
     checkRecordingAndAdd([x,y,width, height](QPainter* p) {
         p->drawEllipse(x, y, width, height);
     });
 }
 
-void QmlNetPaintedItem::drawImage(const QPoint &point, const QImage &image, const QRect &source, Qt::ImageConversionFlags flags) {
+void QmlNetRecordingPaintedItem::drawImage(const QPoint &point, const QImage &image, const QRect &source, Qt::ImageConversionFlags flags) {
     QPoint pointCopy = point;
     QImage imgCopy = image;
     QRect sourceCopy = source;
@@ -206,20 +206,20 @@ void QmlNetPaintedItem::drawImage(const QPoint &point, const QImage &image, cons
     });
 }
 
-void QmlNetPaintedItem::drawLine(int x1, int y1, int x2, int y2) {
+void QmlNetRecordingPaintedItem::drawLine(int x1, int y1, int x2, int y2) {
     checkRecordingAndAdd([x1, y1, x2, y2](QPainter* p) {
         p->drawLine(x1, y1, x2, y2);
     });
 }
 
-//void QmlNetPaintedItem::drawPath(const QPainterPath &path) {
+//void QmlNetRecordingPaintedItem::drawPath(const QPainterPath &path) {
 //    QPainterPath pathCopy = path;
 //    checkRecordingAndAdd([pathCopy](QPainter* p) {
 //        p->drawPath(pathCopy);
 //    });
 //}
 
-//void QmlNetPaintedItem::fillPath(const QPainterPath &path, int colorId) {
+//void QmlNetRecordingPaintedItem::fillPath(const QPainterPath &path, int colorId) {
 //    QPainterPath pathCopy = path;
 //    auto color = m_colorMap[colorId];
 //    checkRecordingAndAdd([pathCopy, color](QPainter* p) {
@@ -227,7 +227,7 @@ void QmlNetPaintedItem::drawLine(int x1, int y1, int x2, int y2) {
 //    });
 //}
 
-//void QmlNetPaintedItem::strokePath(const QPainterPath &path, int colorId) {
+//void QmlNetRecordingPaintedItem::strokePath(const QPainterPath &path, int colorId) {
 //    QPainterPath pathCopy = path;
 //    auto color = m_colorMap[colorId];
 //    checkRecordingAndAdd([pathCopy, color](QPainter* p) {
@@ -235,19 +235,19 @@ void QmlNetPaintedItem::drawLine(int x1, int y1, int x2, int y2) {
 //    });
 //}
 
-void QmlNetPaintedItem::drawPie(int x, int y, int width, int height, int startAngle, int spanAngle) {
+void QmlNetRecordingPaintedItem::drawPie(int x, int y, int width, int height, int startAngle, int spanAngle) {
     checkRecordingAndAdd([x, y, width, height, startAngle, spanAngle](QPainter* p) {
         p->drawPie(x, y, width, height, startAngle, spanAngle);
     });
 }
 
-void QmlNetPaintedItem::drawPoint(int x, int y) {
+void QmlNetRecordingPaintedItem::drawPoint(int x, int y) {
     checkRecordingAndAdd([x, y](QPainter* p) {
         p->drawPoint(x, y);
     });
 }
 
-void QmlNetPaintedItem::drawPolygon(const QPoint *points, int pointCount, Qt::FillRule fillRule) {
+void QmlNetRecordingPaintedItem::drawPolygon(const QPoint *points, int pointCount, Qt::FillRule fillRule) {
     std::vector<QPoint> pointsCopy;
     for(int i=0; i<pointCount; i++) {
         pointsCopy.push_back(points[i]);
@@ -257,7 +257,7 @@ void QmlNetPaintedItem::drawPolygon(const QPoint *points, int pointCount, Qt::Fi
     });
 }
 
-void QmlNetPaintedItem::drawPolyline(const QPoint *points, int pointCount) {
+void QmlNetRecordingPaintedItem::drawPolyline(const QPoint *points, int pointCount) {
     std::vector<QPoint> pointsCopy;
     for(int i=0; i<pointCount; i++) {
         pointsCopy.push_back(points[i]);
@@ -267,113 +267,113 @@ void QmlNetPaintedItem::drawPolyline(const QPoint *points, int pointCount) {
     });
 }
 
-void QmlNetPaintedItem::drawRoundedRect(int x, int y, int w, int h, qreal xRadius, qreal yRadius, Qt::SizeMode mode) {
+void QmlNetRecordingPaintedItem::drawRoundedRect(int x, int y, int w, int h, qreal xRadius, qreal yRadius, Qt::SizeMode mode) {
     checkRecordingAndAdd([x, y, w, h, xRadius, yRadius, mode](QPainter* p) {
         p->drawRoundedRect(x, y, w, h, xRadius, yRadius, mode);
     });
 }
 
-void QmlNetPaintedItem::eraseRect(int x, int y, int width, int height) {
+void QmlNetRecordingPaintedItem::eraseRect(int x, int y, int width, int height) {
     checkRecordingAndAdd([x, y, width, height](QPainter* p) {
         p->eraseRect(x, y, width, height);
     });
 }
 
-void QmlNetPaintedItem::setBackground(int colorId) {
+void QmlNetRecordingPaintedItem::setBackground(int colorId) {
     auto color = m_colorMap[colorId];
     checkRecordingAndAdd([color](QPainter* p) {
         p->setBackground(QBrush(color));
     });
 }
 
-void QmlNetPaintedItem::setBackgroundMode(Qt::BGMode mode) {
+void QmlNetRecordingPaintedItem::setBackgroundMode(Qt::BGMode mode) {
     checkRecordingAndAdd([mode](QPainter* p) {
         p->setBackgroundMode(mode);
     });
 }
 
-//void QmlNetPaintedItem::setClipPath(const QPainterPath &path, Qt::ClipOperation operation) {
+//void QmlNetRecordingPaintedItem::setClipPath(const QPainterPath &path, Qt::ClipOperation operation) {
 //    QPainterPath pathCopy = path;
 //    checkRecordingAndAdd([pathCopy, operation](QPainter* p) {
 //        p->setClipPath(pathCopy, operation);
 //    });
 //}
 
-void QmlNetPaintedItem::setClipRect(int x, int y, int width, int height, Qt::ClipOperation operation) {
+void QmlNetRecordingPaintedItem::setClipRect(int x, int y, int width, int height, Qt::ClipOperation operation) {
     checkRecordingAndAdd([x, y, width, height, operation](QPainter* p) {
         p->setClipRect(x, y, width, height, operation);
     });
 }
 
-void QmlNetPaintedItem::setClipping(bool enable) {
+void QmlNetRecordingPaintedItem::setClipping(bool enable) {
     checkRecordingAndAdd([enable](QPainter* p) {
         p->setClipping(enable);
     });
 }
 
-void QmlNetPaintedItem::setCompositionMode(QPainter::CompositionMode mode) {
+void QmlNetRecordingPaintedItem::setCompositionMode(QPainter::CompositionMode mode) {
     checkRecordingAndAdd([mode](QPainter* p) {
         p->setCompositionMode(mode);
     });
 }
 
-void QmlNetPaintedItem::setLayoutDirection(Qt::LayoutDirection direction) {
+void QmlNetRecordingPaintedItem::setLayoutDirection(Qt::LayoutDirection direction) {
     checkRecordingAndAdd([direction](QPainter* p) {
         p->setLayoutDirection(direction);
     });
 }
 
-void QmlNetPaintedItem::setOpacity(qreal opacity) {
+void QmlNetRecordingPaintedItem::setOpacity(qreal opacity) {
     checkRecordingAndAdd([opacity](QPainter* p) {
         p->setOpacity(opacity);
     });
 }
 
-void QmlNetPaintedItem::setRenderHint(QPainter::RenderHint hint, bool on) {
+void QmlNetRecordingPaintedItem::setRenderHint(QPainter::RenderHint hint, bool on) {
     checkRecordingAndAdd([hint, on](QPainter* p) {
         p->setRenderHint(hint, on);
     });
 }
 
-void QmlNetPaintedItem::setTransform(const QTransform &transform, bool combine) {
+void QmlNetRecordingPaintedItem::setTransform(const QTransform &transform, bool combine) {
     QTransform transformCopy = transform;
     checkRecordingAndAdd([transformCopy, combine](QPainter* p) {
         p->setTransform(transformCopy, combine);
     });
 }
 
-void QmlNetPaintedItem::setViewTransformEnabled(bool enable) {
+void QmlNetRecordingPaintedItem::setViewTransformEnabled(bool enable) {
     checkRecordingAndAdd([enable](QPainter* p) {
         p->setViewTransformEnabled(enable);
     });
 }
 
-void QmlNetPaintedItem::setWorldTransform(const QTransform &matrix, bool combine) {
+void QmlNetRecordingPaintedItem::setWorldTransform(const QTransform &matrix, bool combine) {
     QTransform transformCopy = matrix;
     checkRecordingAndAdd([transformCopy, combine](QPainter* p) {
         p->setWorldTransform(transformCopy, combine);
     });
 }
 
-void QmlNetPaintedItem::setWorldMatrixEnabled(bool enable) {
+void QmlNetRecordingPaintedItem::setWorldMatrixEnabled(bool enable) {
     checkRecordingAndAdd([enable](QPainter* p) {
         p->setWorldMatrixEnabled(enable);
     });
 }
 
-void QmlNetPaintedItem::shear(qreal sh, qreal sv) {
+void QmlNetRecordingPaintedItem::shear(qreal sh, qreal sv) {
     checkRecordingAndAdd([sh, sv](QPainter* p) {
         p->shear(sh, sv);
     });
 }
 
-void QmlNetPaintedItem::translate(qreal dx, qreal dy) {
+void QmlNetRecordingPaintedItem::translate(qreal dx, qreal dy) {
     checkRecordingAndAdd([dx, dy](QPainter* p) {
         p->translate(dx, dy);
     });
 }
 
-int QmlNetPaintedItem::registerColor(QString colorString) {
+int QmlNetRecordingPaintedItem::registerColor(QString colorString) {
     QColor color(colorString);
     for(int i=0; i<std::numeric_limits<int>::max(); i++) {
         if(m_colorMap.find(i) == m_colorMap.end()) {
@@ -384,13 +384,13 @@ int QmlNetPaintedItem::registerColor(QString colorString) {
     throw std::runtime_error("No free color id found");
 }
 
-void QmlNetPaintedItem::freeColor(int colorId) {
+void QmlNetRecordingPaintedItem::freeColor(int colorId) {
     if(m_colorMap.find(colorId) != m_colorMap.end()) {
         m_colorMap.erase(colorId);
     }
 }
 
-int QmlNetPaintedItem::registerFontFamily(QString fontFamilyString) {
+int QmlNetRecordingPaintedItem::registerFontFamily(QString fontFamilyString) {
     for(int i=0; i<std::numeric_limits<int>::max(); i++) {
         if(m_fontFamilyMap.find(i) == m_fontFamilyMap.end()) {
             m_fontFamilyMap[i] = fontFamilyString;
@@ -400,13 +400,13 @@ int QmlNetPaintedItem::registerFontFamily(QString fontFamilyString) {
     throw std::runtime_error("No free font family id found");
 }
 
-void QmlNetPaintedItem::freeFontFamily(int fontFamilyId) {
+void QmlNetRecordingPaintedItem::freeFontFamily(int fontFamilyId) {
     if(m_fontFamilyMap.find(fontFamilyId) != m_fontFamilyMap.end()) {
         m_fontFamilyMap.erase(fontFamilyId);
     }
 }
 
-QSize QmlNetPaintedItem::getStringSize(int fontFamilyId, int fontSizePx, QString text) {
+QSize QmlNetRecordingPaintedItem::getStringSize(int fontFamilyId, int fontSizePx, QString text) {
     auto fontFamilyName = m_fontFamilyMap[fontFamilyId];
     QFont font(fontFamilyName);
     font.setPixelSize(fontSizePx);
@@ -415,7 +415,7 @@ QSize QmlNetPaintedItem::getStringSize(int fontFamilyId, int fontSizePx, QString
     return metrics.size(0, text);
 }
 
-void QmlNetPaintedItem::inputMethodEvent(QInputMethodEvent *e)
+void QmlNetRecordingPaintedItem::inputMethodEvent(QInputMethodEvent *e)
 {
     auto preeditShouldBeActive = !e->preeditString().isEmpty();
     bool hasBeenCommited = false;
@@ -439,11 +439,11 @@ void QmlNetPaintedItem::inputMethodEvent(QInputMethodEvent *e)
     QQuickItem::inputMethodEvent(e);
 }
 
-QVariant QmlNetPaintedItem::inputMethodQuery(Qt::InputMethodQuery property) const {
+QVariant QmlNetRecordingPaintedItem::inputMethodQuery(Qt::InputMethodQuery property) const {
     return QQuickItem::inputMethodQuery(property);
 }
 
-void QmlNetPaintedItem::checkRecordingAndAdd(std::function<void(QPainter*)> action) {
+void QmlNetRecordingPaintedItem::checkRecordingAndAdd(std::function<void(QPainter*)> action) {
     if(!m_isRecording) {
         throw std::runtime_error("No recording session is running. Call beginRecordPaintActions");
     }
@@ -454,7 +454,7 @@ void QmlNetPaintedItem::checkRecordingAndAdd(std::function<void(QPainter*)> acti
     m_recordActionMutex.unlock();
 }
 
-void QmlNetPaintedItem::setPaintedItemToHandler(QObject* handler, QmlNetPaintedItem* paintedItemPtr) {
+void QmlNetRecordingPaintedItem::setPaintedItemToHandler(QObject* handler, QmlNetRecordingPaintedItem* paintedItemPtr) {
     if(handler != nullptr) {
         auto paintedItemRef = (int64_t)paintedItemPtr;
         auto inetQPainterRef = (int64_t)((INetQPainter*)paintedItemPtr);
@@ -462,7 +462,7 @@ void QmlNetPaintedItem::setPaintedItemToHandler(QObject* handler, QmlNetPaintedI
     }
 }
 
-void QmlNetPaintedItem::paint(QPainter *painter)
+void QmlNetRecordingPaintedItem::paint(QPainter *painter)
 {
     m_paintActionMutex.lock();
 
@@ -475,11 +475,11 @@ void QmlNetPaintedItem::paint(QPainter *painter)
 
 extern "C" {
 
-Q_DECL_EXPORT void qqmlnetpainteditem_beginRecordPaintActions(QmlNetPaintedItem* paintedItem) {
+Q_DECL_EXPORT void qqmlnetrecordingpainteditem_beginRecordPaintActions(QmlNetRecordingPaintedItem* paintedItem) {
     paintedItem->beginRecordPaintActions();
 }
 
-Q_DECL_EXPORT void qqmlnetpainteditem_endRecordPaintActions(QmlNetPaintedItem* paintedItem) {
+Q_DECL_EXPORT void qqmlnetrecordingpainteditem_endRecordPaintActions(QmlNetRecordingPaintedItem* paintedItem) {
     paintedItem->endRecordPaintActions();
 }
 
