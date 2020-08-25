@@ -8,7 +8,7 @@ QmlNetRecordingPaintedItem::QmlNetRecordingPaintedItem(QQuickItem *parent)
 }
 
 QmlNetRecordingPaintedItem::~QmlNetRecordingPaintedItem() {
-    setPaintedItemToHandler(m_paintHandler, nullptr);
+    //setPaintedItemToHandler(m_paintHandler, nullptr);
 }
 
 QObject* QmlNetRecordingPaintedItem::paintHandler() const {
@@ -455,7 +455,8 @@ void QmlNetRecordingPaintedItem::checkRecordingAndAdd(std::function<void(QPainte
 }
 
 void QmlNetRecordingPaintedItem::setPaintedItemToHandler(QObject* handler, QmlNetRecordingPaintedItem* paintedItemPtr) {
-    if(handler != nullptr) {
+    QPointer<QObject> handlerPointer(handler);
+    if(!handlerPointer.isNull()) {
         auto paintedItemRef = (int64_t)paintedItemPtr;
         auto inetQPainterRef = (int64_t)((INetQPainter*)paintedItemPtr);
         QMetaObject::invokeMethod(handler, "__setPaintedItem", Q_ARG(QVariant, QVariant::fromValue(paintedItemRef)), Q_ARG(QVariant, QVariant::fromValue(QVariant::fromValue(inetQPainterRef))));
