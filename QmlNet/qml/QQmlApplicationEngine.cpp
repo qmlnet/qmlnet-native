@@ -5,6 +5,7 @@
 #include <QmlNet/qml/JsNetObject.h>
 #include <QQmlContext>
 #include <QAtomicInt>
+#include "QmlNetPaintedItem.h"
 
 static QQmlApplicationEngine* sharedQmlEngineValue = nullptr;
 
@@ -18,12 +19,23 @@ QQmlApplicationEngine* sharedQmlEngine()
 }
 
 static QAtomicInt netValueTypeNumber;
+static QAtomicInt netValueTypeSingletonNumber;
+static QAtomicInt netPaintedQuickItemTypeNumber;
 
 #define NETVALUETYPE_CASE(N) \
-    case N: NetValueType<N>::init(typeInfo); return qmlRegisterType<NetValueType<(N)>>(uriString.toUtf8().data(), versionMajor, versionMinor, qmlNameString.toUtf8().data());
+    case N: \
+        NetValueType<N>::init(typeInfo); \
+        return qmlRegisterType<NetValueType<(N)>>(uriString.toUtf8().data(), versionMajor, versionMinor, qmlNameString.toUtf8().data());
+
+#define NETVALUETYPE_PAINTEDQUICKITEM_CASE(N) \
+    case N: \
+        QmlNetPaintedItem<N>::init(typeInfo); \
+        return qmlRegisterType<QmlNetPaintedItem<(N)>>(uriString.toUtf8().data(), versionMajor, versionMinor, qmlNameString.toUtf8().data());
 
 #define NETVALUETYPESINGLETON_CASE(N) \
-    case N: NetValueType<N>::init(typeInfo); return qmlRegisterSingletonType<NetValueType<N>>(uriString.toUtf8().data(), versionMajor, versionMinor, typeNameString.toUtf8().data(), NetValueType<N>::build);
+    case N: \
+        NetValueType<N>::init(typeInfo); \
+        return qmlRegisterSingletonType<NetValueType<N>>(uriString.toUtf8().data(), versionMajor, versionMinor, typeNameString.toUtf8().data(), NetValueType<N>::build);
 
 
 extern "C" {
@@ -70,7 +82,6 @@ Q_DECL_EXPORT void qqmlapplicationengine_loadData(QQmlApplicationEngineContainer
 }
 
 Q_DECL_EXPORT int qqmlapplicationengine_registerType(NetTypeInfoContainer* typeContainer, QChar* uri, int versionMajor, int versionMinor, QChar* qmlName) {
-
     QString uriString(uri);
     QString qmlNameString(qmlName);
     QSharedPointer<NetTypeInfo> typeInfo = typeContainer->netTypeInfo;
@@ -281,6 +292,67 @@ Q_DECL_EXPORT int qqmlapplicationengine_registerType(NetTypeInfoContainer* typeC
     return -1;
 }
 
+Q_DECL_EXPORT int qqmlapplicationengine_registerPaintedQuickItemType(NetTypeInfoContainer* typeContainer, QChar* uri, int versionMajor, int versionMinor, QChar* qmlName) {
+    QString uriString(uri);
+    QString qmlNameString(qmlName);
+    QSharedPointer<NetTypeInfo> typeInfo = typeContainer->netTypeInfo;
+
+    switch (++netPaintedQuickItemTypeNumber) {
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(1)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(2)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(3)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(4)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(5)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(6)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(7)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(8)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(9)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(10)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(11)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(12)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(13)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(14)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(15)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(16)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(17)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(18)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(19)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(20)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(21)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(22)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(23)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(24)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(25)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(26)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(27)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(28)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(29)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(30)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(31)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(32)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(33)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(34)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(35)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(36)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(37)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(38)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(39)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(40)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(41)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(42)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(43)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(44)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(45)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(46)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(47)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(48)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(49)
+        NETVALUETYPE_PAINTEDQUICKITEM_CASE(50)
+    }
+    qFatal("Too many registered QuickPaintedItem types: %d", static_cast<int>(netPaintedQuickItemTypeNumber));
+    return -1;
+}
+
 Q_DECL_EXPORT int qqmlapplicationengine_registerSingletonTypeQml(const QChar* url, const QChar* uri, int versionMajor, int versionMinor, const QChar* qmlName)
 {
     QString urlString(url);
@@ -295,7 +367,7 @@ Q_DECL_EXPORT int qqmlapplicationengine_registerSingletonTypeNet(NetTypeInfoCont
     QString typeNameString(typeName);
     QString uriString(uri);
 
-    switch (++netValueTypeNumber) {
+    switch (++netValueTypeSingletonNumber) {
         NETVALUETYPESINGLETON_CASE(1)
         NETVALUETYPESINGLETON_CASE(2)
         NETVALUETYPESINGLETON_CASE(3)
@@ -497,7 +569,7 @@ Q_DECL_EXPORT int qqmlapplicationengine_registerSingletonTypeNet(NetTypeInfoCont
         NETVALUETYPESINGLETON_CASE(199)
         NETVALUETYPESINGLETON_CASE(200)
     }
-    qFatal("Too many registered types: %d", static_cast<int>(netValueTypeNumber));
+    qFatal("Too many registered types (singleton): %d", static_cast<int>(netValueTypeSingletonNumber));
     return -1;
 }
 
