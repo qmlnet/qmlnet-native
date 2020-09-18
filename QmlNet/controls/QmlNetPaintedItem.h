@@ -6,6 +6,7 @@
 #include <QmlNet/types/NetTypeInfo.h>
 #include <QmlNet.h>
 #include <QmlNet/types/Callbacks.h>
+#include <QmlNet/qml/NetValueMetaObject.h>
 
 class QmlNetPaintedItemBase : public QQuickPaintedItem {
     Q_OBJECT
@@ -44,6 +45,7 @@ private:
     QString m_preeditText;
 
     QSharedPointer<NetReference> m_netReference;
+    NetValueMetaObject* valueMeta;
 };
 
 template <int N>
@@ -60,7 +62,10 @@ public:
 
     static void init(QSharedPointer<NetTypeInfo> info) {
         s_netTypeInfo = info;
+        static_cast<QMetaObject &>(staticMetaObject) = *metaObjectFor(info, &QmlNetPaintedItemBase::staticMetaObject);
     }
+
+    static QMetaObject staticMetaObject;
 
 private:
     static QSharedPointer<NetTypeInfo> s_netTypeInfo;
@@ -68,5 +73,7 @@ private:
 
 template <int N>
 QSharedPointer<NetTypeInfo> QmlNetPaintedItem<N>::s_netTypeInfo = nullptr;
+template <int N>
+QMetaObject QmlNetPaintedItem<N>::staticMetaObject = QMetaObject();
 
 #endif // QMLNETPAINTEDITEM_H
