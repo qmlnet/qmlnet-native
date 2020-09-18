@@ -5,6 +5,7 @@
 QmlNetPaintedItemBase::QmlNetPaintedItemBase(QSharedPointer<NetReference> netReference, QQuickItem *parent)
     : QQuickPaintedItem(parent),
       m_netReference(netReference) {
+    valueMeta = new NetValueMetaObject(this, netReference);
 }
 
 QmlNetPaintedItemBase::~QmlNetPaintedItemBase() {
