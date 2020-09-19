@@ -39,6 +39,9 @@ public:
 
     void paint(QPainter *painter) override;
 
+    Q_SLOT void onHeightChanged();
+    Q_SLOT void onWidthChanged();
+
 private:
     bool m_supportsTextInput;
     bool m_preeditActive;

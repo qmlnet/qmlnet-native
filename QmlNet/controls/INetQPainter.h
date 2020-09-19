@@ -1,5 +1,5 @@
-#ifndef NETQPAINTER_H
-#define NETQPAINTER_H
+#ifndef INETQPAINTER_H
+#define INETQPAINTER_H
 
 #include <QImage>
 #include <QPainter>
@@ -80,4 +80,4 @@ public:
     virtual QSize getStringSize(int fontFamilyId, int fontSizePx, QString text) = 0;
 };
 
-#endif // NETQPAINTER_H
+#endif // INETQPAINTER_H
