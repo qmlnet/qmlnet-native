@@ -10,7 +10,7 @@
 #include <QDebug>
 #include <private/qmetaobjectbuilder_p.h>
 
-QMetaObject *metaObjectFor(const QSharedPointer<NetTypeInfo>& typeInfo, const QMetaObject* superClassOverride)
+QMetaObject *metaObjectFor(const QSharedPointer<NetTypeInfo>& typeInfo, const QMetaObject* rootSuperClassOverride)
 {
     if (typeInfo->metaObject) {
         return typeInfo->metaObject;
@@ -22,16 +22,16 @@ QMetaObject *metaObjectFor(const QSharedPointer<NetTypeInfo>& typeInfo, const QM
     mob.setClassName(typeInfo->getClassName().toLatin1());
     mob.setFlags(QMetaObjectBuilder::DynamicMetaObject);
 
-    if(superClassOverride == nullptr) {
-        QString baseType = typeInfo->getBaseType();
-        if(baseType.isNull() || baseType.isEmpty()) {
+    QString baseType = typeInfo->getBaseType();
+    if(baseType.isNull() || baseType.isEmpty()) {
+        if(rootSuperClassOverride == nullptr) {
             mob.setSuperClass(&QObject::staticMetaObject);
         } else {
-            auto baseTypeInfo = NetTypeManager::getTypeInfo(baseType);
-            mob.setSuperClass(metaObjectFor(baseTypeInfo));
+            mob.setSuperClass(rootSuperClassOverride);
         }
     } else {
-        mob.setSuperClass(superClassOverride);
+        auto baseTypeInfo = NetTypeManager::getTypeInfo(baseType);
+        mob.setSuperClass(metaObjectFor(baseTypeInfo, rootSuperClassOverride));
     }
 
 

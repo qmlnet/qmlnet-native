@@ -6,7 +6,7 @@
 #include <QmlNet/qml/NetValue.h>
 #include <private/qobject_p.h>
 
-QMetaObject *metaObjectFor(const QSharedPointer<NetTypeInfo>& typeInfo, const QMetaObject* superClass = nullptr);
+QMetaObject *metaObjectFor(const QSharedPointer<NetTypeInfo>& typeInfo, const QMetaObject* rootSuperClassOverride = nullptr);
 
 class NetValueMetaObject : public QAbstractDynamicMetaObject
 {
