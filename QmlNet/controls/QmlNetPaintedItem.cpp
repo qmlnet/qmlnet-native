@@ -1,11 +1,37 @@
+#include "INetQPainter.h"
+#include "NetQPainter.h"
 #include "QmlNetPaintedItem.h"
 #include <QPainter>
 #include <stdexcept>
 
+using setRefCb = void (*)(uint64_t, QmlNetPaintedItemBase *);
+using paintCb = void (*)(uint64_t, INetQPainter *);
+using heightChangedCb = void (*)(uint64_t, int);
+using widthChangedCb = void (*)(uint64_t, int);
+
+struct Q_DECL_EXPORT QmlNetPaintedItemCallbacks {
+    setRefCb setRef;
+    paintCb paint;
+    heightChangedCb heightChanged;
+    widthChangedCb widthChanged;
+};
+
+static QmlNetPaintedItemCallbacks sharedCallbacks {nullptr, nullptr, nullptr, nullptr};
 QmlNetPaintedItemBase::QmlNetPaintedItemBase(QSharedPointer<NetReference> netReference, QQuickItem *parent)
     : QQuickPaintedItem(parent),
       m_netReference(netReference) {
     valueMeta = new NetValueMetaObject(this, netReference);
+    QObject::connect(this,
+                     &QmlNetPaintedItemBase::heightChanged,
+                     this,
+                     &QmlNetPaintedItemBase::onHeightChanged);
+    QObject::connect(this,
+                     &QmlNetPaintedItemBase::widthChanged,
+                     this,
+                     &QmlNetPaintedItemBase::onWidthChanged);
+    if(sharedCallbacks.setRef != nullptr) {
+        sharedCallbacks.setRef(netReference->getObjectId(), this);
+    }
 }
 
 QmlNetPaintedItemBase::~QmlNetPaintedItemBase() {
@@ -57,13 +83,40 @@ QVariant QmlNetPaintedItemBase::inputMethodQuery(Qt::InputMethodQuery property) 
 }
 
 void QmlNetPaintedItemBase::paint(QPainter *painter) {
-    qDebug() << "Paint";
+    NetQPainter netqPainter(painter);
+    if(sharedCallbacks.paint != nullptr) {
+        sharedCallbacks.paint(m_netReference->getObjectId(), &netqPainter);
+    }
+}
+
+void QmlNetPaintedItemBase::onHeightChanged() {
+    if(sharedCallbacks.heightChanged != nullptr) {
+        sharedCallbacks.heightChanged(m_netReference->getObjectId(), height());
+    }
+}
+
+void QmlNetPaintedItemBase::onWidthChanged() {
+    if(sharedCallbacks.widthChanged != nullptr) {
+        sharedCallbacks.widthChanged(m_netReference->getObjectId(), width());
+    }
 }
 
 extern "C" {
 
+Q_DECL_EXPORT void qqmlnetpainteditembase_setCallbacks(QmlNetPaintedItemCallbacks* callbacks) {
+    sharedCallbacks = *callbacks;
+}
+
 Q_DECL_EXPORT void qqmlnetpainteditembase_update(QmlNetPaintedItemBase* paintedItem) {
     paintedItem->update();
+}
+
+Q_DECL_EXPORT int qqmlnetpainteditembase_getHeight(QmlNetPaintedItemBase* paintedItem) {
+    return paintedItem->height();
+}
+
+Q_DECL_EXPORT int qqmlnetpainteditembase_getWidth(QmlNetPaintedItemBase* paintedItem) {
+    return paintedItem->width();
 }
 
 }
