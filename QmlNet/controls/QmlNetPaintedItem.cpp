@@ -1,11 +1,10 @@
-#include "INetQPainter.h"
 #include "NetQPainter.h"
 #include "QmlNetPaintedItem.h"
 #include <QPainter>
 #include <stdexcept>
 
 using setRefCb = void (*)(uint64_t, QmlNetPaintedItemBase *);
-using paintCb = void (*)(uint64_t, INetQPainter *);
+using paintCb = void (*)(uint64_t, NetQPainter *);
 using heightChangedCb = void (*)(uint64_t, int);
 using widthChangedCb = void (*)(uint64_t, int);
 
