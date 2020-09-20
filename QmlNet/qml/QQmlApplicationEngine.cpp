@@ -19,7 +19,6 @@ QQmlApplicationEngine* sharedQmlEngine()
 }
 
 static QAtomicInt netValueTypeNumber;
-static QAtomicInt netValueTypeSingletonNumber;
 static QAtomicInt netPaintedQuickItemTypeNumber;
 
 #define NETVALUETYPE_CASE(N) \
@@ -367,7 +366,7 @@ Q_DECL_EXPORT int qqmlapplicationengine_registerSingletonTypeNet(NetTypeInfoCont
     QString typeNameString(typeName);
     QString uriString(uri);
 
-    switch (++netValueTypeSingletonNumber) {
+    switch (++netValueTypeNumber) {
         NETVALUETYPESINGLETON_CASE(1)
         NETVALUETYPESINGLETON_CASE(2)
         NETVALUETYPESINGLETON_CASE(3)
@@ -569,7 +568,7 @@ Q_DECL_EXPORT int qqmlapplicationengine_registerSingletonTypeNet(NetTypeInfoCont
         NETVALUETYPESINGLETON_CASE(199)
         NETVALUETYPESINGLETON_CASE(200)
     }
-    qFatal("Too many registered types (singleton): %d", static_cast<int>(netValueTypeSingletonNumber));
+    qFatal("Too many registered types: %d", static_cast<int>(netValueTypeNumber));
     return -1;
 }
 
