@@ -74,8 +74,6 @@ public:
     int registerFontFamily(QString fontFamilyName) override;
     void freeFontFamily(int fontId) override;
 
-    QSize getStringSize(int fontFamilyId, int fontSizePx, QString text) override;
-
 private:
     QPainter* m_qpainter;
 

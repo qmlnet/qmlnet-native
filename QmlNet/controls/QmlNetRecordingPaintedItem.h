@@ -99,9 +99,6 @@ public:
     int registerFontFamily(QString fontFamily) override;
     void freeFontFamily(int fontFamilyId) override;
 
-    //helper
-    QSize getStringSize(int fontFamilyId, int fontSizePx, QString text) override;
-
     //input method support
     void inputMethodEvent(QInputMethodEvent *e) override;
     QVariant inputMethodQuery(Qt::InputMethodQuery property) const override;

@@ -1,5 +1,16 @@
 #include "INetQPainter.h"
 
+QSize INetQPainter::getStringSize(QChar* fontFamilyName, int fontSizePx, QString text)
+{
+    QString fontFamilyNameStr(fontFamilyName);
+    QFont font(fontFamilyNameStr);
+    font.setPixelSize(fontSizePx);
+
+    QFontMetrics metrics(font);
+    return metrics.size(0, text);
+}
+
+
 extern "C" {
 
 Q_DECL_EXPORT void inetqpainter_setPen(INetQPainter* painter, int colorId) {
@@ -83,8 +94,8 @@ struct StringSizeResult {
     int height;
 };
 
-Q_DECL_EXPORT StringSizeResult inetqpainter_getStringSize(INetQPainter* painter, int fontFamilyId, int fontSizePx, QChar* text) {
-    auto size = painter->getStringSize(fontFamilyId, fontSizePx, QString(text));
+Q_DECL_EXPORT StringSizeResult inetqpainter_getStringSize(QChar* fontFamilyName, int fontSizePx, QChar* text) {
+    auto size = INetQPainter::getStringSize(fontFamilyName, fontSizePx, QString(text));
     StringSizeResult result;
     result.width = size.width();
     result.height = size.height();
