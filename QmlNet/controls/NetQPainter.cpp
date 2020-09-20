@@ -1,5 +1,5 @@
 #include "NetQPainter.h"
-#include <exception>
+#include <stdexcept>
 
 NetQPainter::NetQPainter(QPainter* qpainter)
     : m_qpainter(qpainter)
