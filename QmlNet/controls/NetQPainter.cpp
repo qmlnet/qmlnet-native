@@ -281,13 +281,3 @@ void NetQPainter::freeFontFamily(int fontId)
         m_fontFamilyMap.erase(fontId);
     }
 }
-
-QSize NetQPainter::getStringSize(int fontFamilyId, int fontSizePx, QString text)
-{
-    auto fontFamilyName = m_fontFamilyMap[fontFamilyId];
-    QFont font(fontFamilyName);
-    font.setPixelSize(fontSizePx);
-
-    QFontMetrics metrics(font);
-    return metrics.size(0, text);
-}

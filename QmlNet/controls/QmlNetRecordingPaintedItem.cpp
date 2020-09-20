@@ -406,15 +406,6 @@ void QmlNetRecordingPaintedItem::freeFontFamily(int fontFamilyId) {
     }
 }
 
-QSize QmlNetRecordingPaintedItem::getStringSize(int fontFamilyId, int fontSizePx, QString text) {
-    auto fontFamilyName = m_fontFamilyMap[fontFamilyId];
-    QFont font(fontFamilyName);
-    font.setPixelSize(fontSizePx);
-
-    QFontMetrics metrics(font);
-    return metrics.size(0, text);
-}
-
 void QmlNetRecordingPaintedItem::inputMethodEvent(QInputMethodEvent *e)
 {
     auto preeditShouldBeActive = !e->preeditString().isEmpty();

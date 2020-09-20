@@ -77,7 +77,7 @@ public:
     virtual int registerFontFamily(QString fontFamilyName) = 0;
     virtual void freeFontFamily(int fontId) = 0;
 
-    virtual QSize getStringSize(int fontFamilyId, int fontSizePx, QString text) = 0;
+    static QSize getStringSize(QChar* fontFamilyName, int fontSizePx, QString text);
 };
 
 #endif // INETQPAINTER_H
