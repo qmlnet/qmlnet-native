@@ -426,6 +426,14 @@ Q_DECL_EXPORT void netqpainter_drawImage(NetQPainter* painter, NetQPainter_Point
     painter->drawImage(p, img, sr, (Qt::ImageConversionFlags)flags);
 }
 
+Q_DECL_EXPORT void netqpainter_drawImageFile(NetQPainter* painter, NetQPainter_Point point, QString filePath, NetQPainter_Rect sourceRect, int flags) {
+    QImage img(filePath);
+    QPoint p(point.x, point.y);
+    QRect sr(sourceRect.x, sourceRect.y, sourceRect.width, sourceRect.height);
+
+    painter->drawImage(p, img, sr, (Qt::ImageConversionFlags)flags);
+}
+
 Q_DECL_EXPORT void netqpainter_drawLine(NetQPainter* painter, int x1, int y1, int x2, int y2) {
     painter->drawLine(x1, y1, x2, y2);
 }
