@@ -55,19 +55,18 @@ QString QmlNetPaintedItemBase::preeditText() {
 
 //input method support
 void QmlNetPaintedItemBase::inputMethodEvent(QInputMethodEvent *e) {
+//    qDebug() << "InputMethod event. PreeditString=" << e->preeditString() << ", CommitString=" << e->commitString();
     auto preeditShouldBeActive = !e->preeditString().isEmpty();
-    bool hasBeenCommited = false;
 
     if(m_preeditActive != preeditShouldBeActive) {
         m_preeditActive = preeditShouldBeActive;
         Q_EMIT preeditActiveChanged();
-        hasBeenCommited = true;
     }
     if(m_preeditText != e->preeditString()) {
         m_preeditText = e->preeditString();
         Q_EMIT preeditTextChanged();
     }
-    if(hasBeenCommited && !e->commitString().isEmpty()) {
+    if(!e->commitString().isEmpty()) {
         QKeyEvent* event = new QKeyEvent(QKeyEvent::KeyPress,
                                          Qt::Key_unknown,
                                          Qt::NoModifier,
