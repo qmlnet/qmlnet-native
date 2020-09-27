@@ -1,5 +1,6 @@
 #include "NetQPainter.h"
 #include "QmlNetPaintedItem.h"
+#include <QBuffer>
 #include <QPainter>
 #include <stdexcept>
 
@@ -87,6 +88,18 @@ void QmlNetPaintedItemBase::paint(QPainter *painter) {
     }
 }
 
+QImage QmlNetPaintedItemBase::paintToImage() {
+    QImage result(width(), height(), QImage::Format_ARGB32);
+    QPainter painter;
+
+    painter.begin(&result);
+    painter.fillRect(0, 0, width(), height(), this->fillColor());
+    paint(&painter);
+    painter.end();
+
+    return result;
+}
+
 void QmlNetPaintedItemBase::onHeightChanged() {
     if(sharedCallbacks.heightChanged != nullptr) {
         sharedCallbacks.heightChanged(m_netReference->getObjectId(), height());
@@ -115,6 +128,19 @@ Q_DECL_EXPORT int qqmlnetpainteditembase_getHeight(QmlNetPaintedItemBase* painte
 
 Q_DECL_EXPORT int qqmlnetpainteditembase_getWidth(QmlNetPaintedItemBase* paintedItem) {
     return paintedItem->width();
+}
+
+Q_DECL_EXPORT uchar* qqmlnetpainteditembase_paintToImage(QmlNetPaintedItemBase* paintedItem, int64_t* sizeOut, QChar* format) {
+    auto img = paintedItem->paintToImage();
+    QByteArray arr;
+    QBuffer buffer(&arr);
+    buffer.open(QIODevice::WriteOnly);
+    img.save(&buffer, QString(format).toStdString().c_str());
+
+    uchar* result = new uchar[buffer.data().size()];
+    memcpy(result, buffer.data().data(), buffer.data().size());
+    *sizeOut = buffer.data().size();
+    return result;
 }
 
 }
