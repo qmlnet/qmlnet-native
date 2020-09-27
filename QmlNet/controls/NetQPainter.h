@@ -10,7 +10,7 @@ public:
     NetQPainter(QPainter* qpainter);
     ~NetQPainter();
 
-    void setPen(int colorId);
+    void setPen(int colorId, int width);
     void resetPen();
     void setBrush(int colorId);
     void resetBrush();
