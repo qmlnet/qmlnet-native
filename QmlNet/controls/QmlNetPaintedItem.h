@@ -39,6 +39,13 @@ public:
 
     void paint(QPainter *painter) override;
 
+    /**
+     * @brief paintToImage mainly intended for testing the paint operations.
+     * Calls paint() and returns the resulting image
+     * @return a new image containing what paint() produced
+     */
+    QImage paintToImage();
+
     Q_SLOT void onHeightChanged();
     Q_SLOT void onWidthChanged();
 
