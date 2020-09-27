@@ -10,11 +10,12 @@ NetQPainter::~NetQPainter()
 
 }
 
-void NetQPainter::setPen(int colorId)
+void NetQPainter::setPen(int colorId, int width)
 {
     auto color = m_colorMap.at(colorId);
     QPen pen(color);
-    m_qpainter->setPen(color);
+    pen.setWidth(width);
+    m_qpainter->setPen(pen);
 }
 
 void NetQPainter::resetPen() {
@@ -295,8 +296,8 @@ QSize NetQPainter::getStringSize(QChar* fontFamilyName, int fontSizePx, QString 
 
 extern "C" {
 
-Q_DECL_EXPORT void netqpainter_setPen(NetQPainter* painter, int colorId) {
-    painter->setPen(colorId);
+Q_DECL_EXPORT void netqpainter_setPen(NetQPainter* painter, int colorId, int width) {
+    painter->setPen(colorId, width);
 }
 
 Q_DECL_EXPORT void netqpainter_resetPen(NetQPainter* painter) {
