@@ -5,6 +5,7 @@
 #include <QQmlApplicationEngine>
 #include <QmlNetUtilities.h>
 #include <QDebug>
+#include <QIcon>
 
 #if __has_include(<QApplication>)
 #define QMLNET_HAS_WIDGETS
@@ -170,6 +171,15 @@ Q_DECL_EXPORT int qapp_exec()
 Q_DECL_EXPORT void qapp_addCallbacks(QGuiApplicationContainer* container, QCoreAppCallbacks* callbacks)
 {
     container->callback->setCallbacks(callbacks);
+}
+
+Q_DECL_EXPORT void qapp_setWindowIcon(QGuiApplicationContainer* container, QChar* pngPath)
+{
+    if(qobject_cast<QGuiApplication*>(container->app) != nullptr) {
+        qobject_cast<QGuiApplication*>(container->app)->setWindowIcon(QIcon(QString(pngPath)));
+    } else {
+        qCritical("Setting the window icon is only possible by using a QGuiApplication instance!");
+    }
 }
 
 Q_DECL_EXPORT void qapp_requestTrigger(QGuiApplicationContainer* container)
