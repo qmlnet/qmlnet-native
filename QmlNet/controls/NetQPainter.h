@@ -55,11 +55,11 @@ public:
     void setOpacity(qreal opacity);
     void setRenderHint(QPainter::RenderHint hint, bool on);
 
-    void setTransform(const QTransform &transform, bool combine);
-    void setViewTransformEnabled(bool enable);
+//    void setTransform(const QTransform &transform, bool combine);
+//    void setViewTransformEnabled(bool enable);
 
-    void setWorldTransform(const QTransform &matrix, bool combine);
-    void setWorldMatrixEnabled(bool enable);
+//    void setWorldTransform(const QTransform &matrix, bool combine);
+//    void setWorldMatrixEnabled(bool enable);
 
     void shear(qreal sh, qreal sv);
 
