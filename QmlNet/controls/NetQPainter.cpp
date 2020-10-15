@@ -215,25 +215,25 @@ void NetQPainter::setRenderHint(QPainter::RenderHint hint, bool on)
     m_qpainter->setRenderHint(hint, on);
 }
 
-void NetQPainter::setTransform(const QTransform &transform, bool combine)
-{
-    m_qpainter->setTransform(transform, combine);
-}
+//void NetQPainter::setTransform(const QTransform &transform, bool combine)
+//{
+//    m_qpainter->setTransform(transform, combine);
+//}
 
-void NetQPainter::setViewTransformEnabled(bool enable)
-{
-    m_qpainter->setViewTransformEnabled(enable);
-}
+//void NetQPainter::setViewTransformEnabled(bool enable)
+//{
+//    m_qpainter->setViewTransformEnabled(enable);
+//}
 
-void NetQPainter::setWorldTransform(const QTransform &matrix, bool combine)
-{
-    m_qpainter->setTransform(matrix, combine);
-}
+//void NetQPainter::setWorldTransform(const QTransform &matrix, bool combine)
+//{
+//    m_qpainter->setTransform(matrix, combine);
+//}
 
-void NetQPainter::setWorldMatrixEnabled(bool enable)
-{
-    m_qpainter->setWorldMatrixEnabled(enable);
-}
+//void NetQPainter::setWorldMatrixEnabled(bool enable)
+//{
+//    m_qpainter->setWorldMatrixEnabled(enable);
+//}
 
 void NetQPainter::shear(qreal sh, qreal sv)
 {
@@ -714,24 +714,6 @@ Q_DECL_EXPORT void netqpainter_setOpacity(NetQPainter* painter, double opacity) 
 
 Q_DECL_EXPORT void netqpainter_setRenderHint(NetQPainter* painter, QPainter::RenderHint hint, bool on) {
     painter->setRenderHint(hint, on);
-}
-
-Q_DECL_EXPORT void netqpainter_setTransform(NetQPainter* painter, double h11, double h12, double h13, double h21, double h22, double h23, double h31, double h32, double h33, bool combine) {
-    QTransform transform(h11, h12, h13, h21, h22, h23, h31, h32, h33);
-    painter->setTransform(transform, combine);
-}
-
-Q_DECL_EXPORT void netqpainter_setViewTransformEnabled(NetQPainter* painter, bool enabled) {
-    painter->setViewTransformEnabled(enabled);
-}
-
-Q_DECL_EXPORT void netqpainter_setWorldTransform(NetQPainter* painter, double h11, double h12, double h13, double h21, double h22, double h23, double h31, double h32, double h33, bool combine) {
-    QTransform transform(h11, h12, h13, h21, h22, h23, h31, h32, h33);
-    painter->setWorldTransform(transform, combine);
-}
-
-Q_DECL_EXPORT void netqpainter_setWorldMatrixEnabled(NetQPainter* painter, bool enabled) {
-    painter->setWorldMatrixEnabled(enabled);
 }
 
 Q_DECL_EXPORT void netqpainter_shear(NetQPainter* painter, double sh, double sv) {
